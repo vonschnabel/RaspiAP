@@ -100,9 +100,15 @@ if(isset($_POST['scanresults'])){
 if(isset($_POST['writeWPAConf'])){
   $ssid = $_POST['ssid'];
   $password = $_POST['password'];
-  writeWPAConf($ssid, $password);
-  exec('sudo /bin/cp /var/www/html/tmp/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf');
-  exec('sudo /sbin/wpa_cli -i wlan1 reconfigure');
+  if ($_POST['hidden'] == "true"){
+    $hidden = "true";
+    writeWPAConf($ssid, $password, $hidden);
+  }
+  else{
+    $hidden = "false";
+    writeWPAConf($ssid, $password, $hidden);
+  }
+
   echo json_encode("wpa_supplicant Config erstellt");
 }
 
@@ -308,19 +314,29 @@ function writeDNSMasqConf($staticIP, $DHCPRangeStart, $DHCPRangeEnd, $LeaseTime,
 	fclose($dnsmasq_file);
 }
 
-function writeWPAConf($ssid, $psk){
+function writeWPAConf($ssid, $psk, $hidden){
 
 	$wpa_file = fopen('/var/www/html/tmp/wpa_supplicant.conf', 'w') or die("Unable to open file!");
 
 	fwrite($wpa_file, "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev".PHP_EOL);
 	fwrite($wpa_file, "update_config=1".PHP_EOL);
-	fwrite($wpa_file, "network={".PHP_EOL);
-	fwrite($wpa_file, "\tssid=\"".$ssid."\"".PHP_EOL);
-	fwrite($wpa_file, "\tpsk=\"".$psk."\"".PHP_EOL);
-	fwrite($wpa_file, "\tkey_mgmt=WPA-PSK".PHP_EOL);
-	fwrite($wpa_file, "}".PHP_EOL);
-	fclose($wpa_file);
-////////////////////////////////////////////////////////////////////////////
+	if(strlen($psk) == 0){
+	  fwrite($wpa_file, "network={".PHP_EOL);
+	  fwrite($wpa_file, "\tssid=\"".$ssid."\"".PHP_EOL);
+	  fwrite($wpa_file, "\tkey_mgmt=NONE".PHP_EOL);
+	  fwrite($wpa_file, "}".PHP_EOL);
+	}
+	else{
+	  fwrite($wpa_file, "network={".PHP_EOL);
+	  fwrite($wpa_file, "\tssid=\"".$ssid."\"".PHP_EOL);
+	  fwrite($wpa_file, "\tpsk=\"".$psk."\"".PHP_EOL);
+          if($hidden == "true"){
+            fwrite($wpa_file, "\tscan_ssid=1".PHP_EOL);
+          }
+	  fwrite($wpa_file, "\tkey_mgmt=WPA-PSK".PHP_EOL);
+	  fwrite($wpa_file, "}".PHP_EOL);
+	  fclose($wpa_file);
+	}
         exec('sudo /bin/cp /var/www/html/tmp/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf');
         exec('sudo /sbin/wpa_cli -i wlan1 reconfigure');
 }

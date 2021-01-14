@@ -260,6 +260,7 @@ body {font-family: Arial;}
 
   <div id="ConnectWifi" class="tabcontent">
     <button onclick="scanwifi()">Scan WiFi Networks</button>
+    <button onclick="connecthidden()">Connect to hidden WiFi</button>
     <div id="emptyShell"></div>
   </div>
 
@@ -290,11 +291,25 @@ body {font-family: Arial;}
     var password = window.prompt("Enter the Password");
     //console.log(password); //kann weg
     //console.log(ssid); //kann weg
-
     $.ajax({
       type: "POST",
       url: 'functions.php',
       data: {writeWPAConf : true, ssid : ssid, password : password},
+      dataType: "json",
+      success: function(data){
+        alert(data);
+        location.reload();
+      },
+    });
+  }
+
+  function connecthidden(){
+    var ssid = window.prompt("Enter the SSID");
+    var password = window.prompt("Enter the Password");
+    $.ajax({
+      type: "POST",
+      url: 'functions.php',
+      data: {writeWPAConf : true, ssid : ssid, password : password, hidden : true},
       dataType: "json",
       success: function(data){
         alert(data);
@@ -368,15 +383,15 @@ body {font-family: Arial;}
       var nodeLiSignal = document.createElement("LI");
       var nodeLiFlags = document.createElement("LI");
       //var bssidnode = document.createTextNode("BSSID " + networks[i]["bssid"]); // wahrscheinlich nioht benoetigt
-      var ssidnode = document.createTextNode("SSID " + networks[i]["ssid"]);
+      var ssidnode = document.createTextNode("SSID: " + networks[i]["ssid"]);
       if (networks[i]["frequency"] > 5000){
-        var freqnode = document.createTextNode("Frequency 5 GHz");
+        var freqnode = document.createTextNode("Frequency: 5 GHz");
       }
       else if (networks[i]["frequency"] > 2400){
-        var freqnode = document.createTextNode("Frequency 2.4 GHz");
+        var freqnode = document.createTextNode("Frequency: 2.4 GHz");
       }
-      var signalnode = document.createTextNode("Signal Strength " + networks[i]["signal level"]);
-      var flagsnode = document.createTextNode("Flags " + networks[i]["flags"]);
+      var signalnode = document.createTextNode("Signal Strength: " + networks[i]["signal level"]);
+      var flagsnode = document.createTextNode("Flags: " + networks[i]["flags"]);
 
       // <button onclick="scanwifi()">get node</button>
       var nodeBtnConnect = document.createElement("BUTTON");
