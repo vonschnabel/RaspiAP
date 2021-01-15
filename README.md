@@ -24,3 +24,9 @@ echo net.ipv4.ip_forward=1 >> sudo nano /etc/sysctl.d/99-sysctl.conf
 sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 sudo iptables -t nat -A POSTROUTING -o wlan1 -j MASQUERADE
 sudo netfilter-persistent save
+
+git clone https://github.com/vonschnabel/RaspiAP.git
+
+sudo cp ./RaspiAP/090_raspap /etc/sudoers.d
+sudo cp ./RaspiAP/functions.php /var/www/html/
+sudo cp ./RaspiAP/hotspot.php /var/www/html/
