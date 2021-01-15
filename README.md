@@ -1,6 +1,7 @@
 # RaspiAP
 
-Install WiFi drivers for additional WiFi device (wlan1). The systems only supports wlan0 as hotspot delivering device. 
+The WiFi drivers for additional WiFi device (wlan1) need to be installed beforehand. 
+The systems only supports wlan0 as hotspot delivering device. 
 The connection to other WiFi's is only possible with wlan1.
 
 Installation:
