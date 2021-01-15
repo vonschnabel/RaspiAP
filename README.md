@@ -10,10 +10,7 @@ Installation:
 sudo apt update && sudo apt upgrade -y
 
 sudo DEBIAN_FRONTEND=noninteractive apt install -y netfilter-persistent iptables-persistent
-sudo apt install apache2
-sudo apt install  php php-mbstring
-sudo apt install hostapd
-sudo apt install dnsmasq
+sudo apt install apache2 php php-mbstring hostapd dnsmasq -y
 
 sudo sed -i 's/Priv/#Priv/g' /lib/systemd/system/apache2.service
 
