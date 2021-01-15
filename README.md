@@ -21,7 +21,7 @@ sudo chown www-data:www-data /var/www/html/tmp
 sudo systemctl unmask hostapd
 sudo systemctl enable hostapd
 
-echo net.ipv4.ip_forward=1 >> sudo nano /etc/sysctl.d/99-sysctl.conf
+sudo echo net.ipv4.ip_forward=1 >> /etc/sysctl.d/99-sysctl.conf
 
 sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 sudo iptables -t nat -A POSTROUTING -o wlan1 -j MASQUERADE
