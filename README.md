@@ -36,3 +36,7 @@ sudo cp ./RaspiAP/functions.php /var/www/html/
 sudo cp ./RaspiAP/hotspot.php /var/www/html/
 ```
 ![Actual-Config](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/01-Actual-Config.PNG)
+![Hotspot](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/02-Hotspot.PNG)
+![Network-Settings](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/03-Network-Settings.PNG)
+![Connect-Wifi-1](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/04-Connect-Wifi-1.PNG)
+![Connect-Wifi-2](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/04-Connect-Wifi-2.PNG)
