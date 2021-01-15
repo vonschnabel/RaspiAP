@@ -1,11 +1,11 @@
-#RaspiAP#
+# RaspiAP
 
 Install WiFi drivers for additional WiFi device (wlan1). The systems only supports wlan0 as hotspot delivering device. 
 The connection to other WiFi's is only possible with wlan1.
 
 Installation:
 
-sudo apt update && sudp apt upgrade -y
+``` sudo apt update && sudp apt upgrade -y
 
 sudo DEBIAN_FRONTEND=noninteractive apt install -y netfilter-persistent iptables-persistent
 sudo apt install apache2
@@ -30,3 +30,4 @@ git clone https://github.com/vonschnabel/RaspiAP.git
 sudo cp ./RaspiAP/090_raspap /etc/sudoers.d
 sudo cp ./RaspiAP/functions.php /var/www/html/
 sudo cp ./RaspiAP/hotspot.php /var/www/html/
+```
