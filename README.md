@@ -15,6 +15,8 @@ sudo apt install  php php-mbstring
 sudo apt install hostapd
 sudo apt install dnsmasq
 
+sudo sed -i 's/Priv/#Priv/g' /lib/systemd/system/apache2.service
+
 sudo mkdir /var/www/html/tmp
 sudo chown www-data:www-data /var/www/html/tmp
 
