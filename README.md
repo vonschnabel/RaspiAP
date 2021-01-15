@@ -35,3 +35,4 @@ sudo cp ./RaspiAP/090_raspap /etc/sudoers.d
 sudo cp ./RaspiAP/functions.php /var/www/html/
 sudo cp ./RaspiAP/hotspot.php /var/www/html/
 ```
+![Actual-Config](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/01-Actual-Config.PNG)
