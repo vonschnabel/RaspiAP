@@ -5,7 +5,8 @@ The connection to other WiFi's is only possible with wlan1.
 
 Installation:
 
-``` sudo apt update && sudp apt upgrade -y
+``` 
+sudo apt update && sudp apt upgrade -y
 
 sudo DEBIAN_FRONTEND=noninteractive apt install -y netfilter-persistent iptables-persistent
 sudo apt install apache2
