@@ -49,6 +49,20 @@
       $hwmode = "a";
     }
     $channel = $_POST['channel'];
+
+    $stats = getSystemConfig(); // load the previous Config if a Value is not set
+    if($ssid == ""){
+      $ssid = $stats[3];
+    }
+    if($password == ""){
+      $password = $stats[4];
+    }
+    if($countrycode == ""){
+      $countrycode = $stats[9];
+    }
+    if($channel == ""){
+      $channel = $stats[10];
+    }
     //echo "$ssid<br>";
     //echo "$password<br>";
     //echo "$countrycode<br>";
@@ -68,6 +82,29 @@
     $DHCPEndIP = $_POST['rangeEnd'];
     $DNSClients = $_POST['dnsClients'];
     $leaseTime = $_POST['leaseTime'];
+
+    $stats = getSystemConfig(); // load the previous Config if a Value is not set
+    if($IPwlan0 == ""){
+      $IPwlan0 = $stats[6];
+    }
+    if($DNSwlan0 == ""){
+      $DNSwlan0 = $stats[13];
+    }
+    elseif($DNSwlan0 == "-"){
+      $DNSwlan0 = "";
+    }
+    if($DHCPStartIP == ""){
+      $DHCPStartIP = $stats[0];
+    }
+    if($DHCPEndIP == ""){
+      $DHCPEndIP = $stats[1];
+    }
+    if($DNSClients == ""){
+      $DNSClients = $stats[11];
+    }
+    if($leaseTime == ""){
+      $leaseTime = $stats[2];
+    }
     //echo "$IPwlan0<br>";
     //echo "$DNSwlan0<br>";
     //echo "$DHCPStartIP<br>";
@@ -265,7 +302,6 @@ function getFile(){
 }*/
 
 function writeDHCPCDConf($staticIP, $staticDNS){
-
 	$interface = "wlan0";
 	$staticIPMask = "/24";
 
@@ -294,7 +330,6 @@ function writeDHCPCDConf($staticIP, $staticDNS){
 }
 
 function writeDNSMasqConf($staticIP, $DHCPRangeStart, $DHCPRangeEnd, $LeaseTime, $DNSServer){
-
         //$staticIP = strrev($staticIP);
         $result = explode('.',$staticIP);
         $IPRange = $result[0].".".$result[1].".".$result[2].".";
@@ -314,19 +349,96 @@ function writeDNSMasqConf($staticIP, $DHCPRangeStart, $DHCPRangeEnd, $LeaseTime,
 	fclose($dnsmasq_file);
 }
 
-function writeWPAConf($ssid, $psk, $hidden){
+function writeWPAConf($ssid, $psk, $hidden){	
+        $wpa_file = fopen('/etc/wpa_supplicant/wpa_supplicant.conf', 'r') or die("Unable to open file!");
+ 	$result = array();
+	$searchstring = 'ssid="' . $ssid . '"';		
+	while(! feof($wpa_file)){
+	  array_push($result,fgets($wpa_file));
+	}
+	// check if Network exists in Config and delete entry
+	$i = 0;
+	while($i < count($result)){
+	  if(strcmp(trim(preg_replace('/\t+/', '', $result[$i])),$searchstring) == 0){
+  	   unset($result[$i-1]);
+ 	   unset($result[$i]);
+ 	   $i++;
+ 	   while(strcmp($result[$i], "}") != 1){
+	      unset($result[$i]);
+	      $i++;
+	    }
+	    if(strcmp($result[$i], "}") == 1){
+	     unset($result[$i]);
+	    }
+	  }	  
+	  $i++;	  
+	}
+	$result = array_values($result);          
+
+	// delete two or more empty lines
+	$i = 0;
+	while($i < count($result)){
+	  if(strcmp($result[$i], "") == 1 && strcmp($result[$i+1], "") == 1){
+	    unset($result[$i]);
+	  }
+	  $i++;
+	}
+	$result = array_values($result); 
+	
+	// check if the two mandatory lines exist only once
+	$searchstring = 'ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev';
+	$searchstring2 = 'update_config=1';
+	$searchstringcount = 0;
+	$searchstring2count = 0;
+        $i = 0;
+        while($i < count($result)){
+          if(strcmp($result[$i], $searchstring) == 1){
+            $searchstringcount++;	    
+          }
+	  if(strcmp($result[$i], $searchstring2) == 1){
+            $searchstring2count++;	   
+          }
+          if($searchstringcount > 1){
+            unset($result[$i]);
+	    $searchstringcount--;	    
+          }
+          if($searchstring2count > 1){
+            unset($result[$i]);
+	    $searchstring2count--;	    
+          }
+	  $i++;
+	}
+
+	if($searchstring2count == 0){
+	  array_unshift($result, "\n");
+	  array_unshift($result, "update_config=1\n");	  
+	}
+        if($searchstringcount == 0){	  
+          array_unshift($result, "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\n");	  
+        }
+	$result = array_values($result);
 
 	$wpa_file = fopen('/var/www/html/tmp/wpa_supplicant.conf', 'w') or die("Unable to open file!");
+	$i = 0;
+	while($i < count($result)){
+	  fwrite($wpa_file, "$result[$i]");
+	  $i++;
+	}
+	fclose($wpa_file);
+	fclose($logfile); //
 
-	fwrite($wpa_file, "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev".PHP_EOL);
-	fwrite($wpa_file, "update_config=1".PHP_EOL);
+	// Append WPA Config to File
+	$wpa_file = fopen('/var/www/html/tmp/wpa_supplicant.conf', 'a') or die("Unable to open file!");
+	
 	if(strlen($psk) == 0){
+	  //fwrite($wpa_file, "".PHP_EOL);
 	  fwrite($wpa_file, "network={".PHP_EOL);
 	  fwrite($wpa_file, "\tssid=\"".$ssid."\"".PHP_EOL);
 	  fwrite($wpa_file, "\tkey_mgmt=NONE".PHP_EOL);
 	  fwrite($wpa_file, "}".PHP_EOL);
 	}
 	else{
+	  //fwrite($wpa_file, "".PHP_EOL);
 	  fwrite($wpa_file, "network={".PHP_EOL);
 	  fwrite($wpa_file, "\tssid=\"".$ssid."\"".PHP_EOL);
 	  fwrite($wpa_file, "\tpsk=\"".$psk."\"".PHP_EOL);
@@ -337,8 +449,62 @@ function writeWPAConf($ssid, $psk, $hidden){
 	  fwrite($wpa_file, "}".PHP_EOL);
 	  fclose($wpa_file);
 	}
+
         exec('sudo /bin/cp /var/www/html/tmp/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf');
         exec('sudo /sbin/wpa_cli -i wlan1 reconfigure');
+	unlink('/var/www/html/tmp/wpa_supplicant.conf');			
+}
+
+writeWPAConf("beitenu", "123123", false);
+
+function deleteSSID($ssid){	
+	// check if Network exists in Config and delete entry
+        $wpa_file = fopen('/etc/wpa_supplicant/wpa_supplicant.conf', 'r') or die("Unable to open file!");
+ 	$result = array();	
+	$searchstring = 'ssid="' . $ssid . '"';	
+	while(! feof($wpa_file)){
+	  array_push($result,fgets($wpa_file));
+	}
+
+	$i = 0;
+	while($i < count($result)){
+	  if(strcmp(trim(preg_replace('/\t+/', '', $result[$i])),$searchstring) == 0){
+  	   unset($result[$i-1]);
+ 	   unset($result[$i]);
+ 	   $i++;
+ 	   while(strcmp($result[$i], "}") != 1){
+	      unset($result[$i]);
+	      $i++;
+	    }	   
+	    if(strcmp($result[$i], "}") == 1){
+	     unset($result[$i]);
+	    }
+	  }	  
+	  $i++;	  
+	}
+	$result = array_values($result);          
+
+	// delete two or more empty lines
+	$i = 0;
+	while($i < count($result)){
+	  if(strcmp($result[$i], "") == 1 && strcmp($result[$i+1], "") == 1){
+	    unset($result[$i]);
+	  }
+	  $i++;
+	}
+	$result = array_values($result);
+
+	$wpa_file = fopen('/var/www/html/tmp/wpa_supplicant.conf', 'w') or die("Unable to open file!");
+	$i = 0;
+	while($i < count($result)){
+	  fwrite($wpa_file, "$result[$i]");
+	  $i++;
+	}
+	fclose($wpa_file);
+
+        exec('sudo /bin/cp /var/www/html/tmp/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf');
+        exec('sudo /sbin/wpa_cli -i wlan1 reconfigure');
+	unlink('/var/www/html/tmp/wpa_supplicant.conf'); 
 }
 
 function writeHostAPDConf($ssid, $psk, $country_code, $hw_mode, $channel){
@@ -369,6 +535,7 @@ function writeHostAPDConf($ssid, $psk, $country_code, $hw_mode, $channel){
 	fwrite($hostapd_file, "rsn_pairwise=CCMP".PHP_EOL);
 	fclose($hostapd_file);
 }
+
 function cleanUp(){
 	echo "cleanUp";
 	unlink('/var/www/html/tmp/090_raspap.conf');

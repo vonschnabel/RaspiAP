@@ -1,81 +1,5 @@
 <?php
   require_once 'functions.php';
-/*
-  if(isset($_POST['btnReboot'])) {
-      $message = "System wir neu gestartet";
-      echo "<script type='text/javascript'>alert('$message');</script>";
-      exec('sudo /sbin/reboot');
-  }
-  if(isset($_POST['btnShutdown'])) {
-      $message = "System wird heruntergefahren";
-      echo "<script type='text/javascript'>alert('$message');</script>";
-      exec('sudo /sbin/shutdown -h now');
-  }
-
-  if(isset($_POST['btnScanWiFi'])) {
-      //echo "Scanning";
-      $networks = wifiscan();
-      print_r($networks);
-  }
-
-
-
-  $stats = getSystemConfig();
-  $dhcprangestart = $stats[0];
-  $dhcprangeend = $stats[1];
-  $dhcpleasetime = $stats[2];
-  $ssidwlan0 = $stats[3];
-  $pskwlan0 = $stats[4];
-  $ipeth0 = $stats[5];
-  $ipwlan0 = $stats[6];
-  $ipwlan1 = $stats[7];
-  $ssidwlan1 = $stats[8];
-  $countrycodewlan0 = $stats[9];
-  $channelwlan0 = $stats[10];
-  $dhcpdns = $stats[11];
-  $dhcprange = $stats[12];
-
-  if(isset($_POST['btnHotspot'])) {
-    $ssid = $_POST['ssid'];
-    $password = $_POST['password'];
-    $countrycode = $_POST['countrycode'];
-    $frq24 = "2.4 GHz";
-    $frq50 = "5.0 GHz";
-    $tempvar = $_POST['hwmode'];
-    if ($tempvar == $frq24){
-      $hwmode = "g";
-    }
-    elseif ($tempvar == $frq50){
-      $hwmode = "a";
-    }
-    $channel = $_POST['channel'];
-    echo "$ssid<br>";
-    echo "$password<br>";
-    echo "$countrycode<br>";
-    echo "$hwmode<br>";
-    echo "$channel<br><br>";
-    writeHostAPDConf($ssid, $password, $countrycode, $hwmode, $channel);
-    echo "hostapd Conf erstellt";
-  }
-
-  if(isset($_POST['btnNetwork'])) {
-    $IPwlan0 = $_POST['staticIP'];
-    $DNSwlan0 = $_POST['dnswlan0'];
-    $DHCPStartIP = $_POST['rangeStart'];
-    $DHCPEndIP = $_POST['rangeEnd'];
-    $DNSClients = $_POST['dnsClients'];
-    $leaseTime = $_POST['leaseTime'];
-    echo "$IPwlan0<br>";
-    echo "$DNSwlan0<br>";
-    echo "$DHCPStartIP<br>";
-    echo "$DHCPEndIP<br>";
-    echo "$DNSClients<br>";
-    echo "$leaseTime<br><br>";
-    writeDHCPCDConf($IPwlan0, $DNSwlan0);
-    writeDNSMasqConf($IPwlan0, $DHCPStartIP, $DHCPEndIP, $leaseTime, $DNSClients);
-    echo "dnsmasq conf erstellt<br>";
-    echo "dhcpcd conf erstellt";
-  }*/
 ?>
 
 <!DOCTYPE HTML>
@@ -151,24 +75,24 @@ body {font-family: Arial;}
     <h3>Hotspot Config</h3>
     <form method="post">
       <label>SSID
-      <input name="ssid" type="text" placeholder="<?=$ssidwlan0?>" required>
+      <input name="ssid" type="text" placeholder="<?=$ssidwlan0?>">
       </label>
       <br><br>
 
       <label>Password
-      <input name="password" type="password" placeholder="<?=$pskwlan0?>" required>
+      <input name="password" type="password" placeholder="<?=$pskwlan0?>">
       </label>
       <br><br>
 
       <label>Country Code
-      <input name="countrycode" type="text" placeholder="<?=$countrycodewlan0?>" required>
+      <input name="countrycode" type="text" placeholder="<?=$countrycodewlan0?>">
       </label>
       <br><br>
 
       <label>Frequenz</label>
       <br>
       <label>2.4 GHz
-      <input name="hwmode" type="radio" value="2.4 GHz" id="mode24" required>
+      <input name="hwmode" type="radio" value="2.4 GHz" id="mode24">
       </label>
       <br>
       <label>5.0 GHz
@@ -177,7 +101,7 @@ body {font-family: Arial;}
       <br><br>
 
       <label>Channel
-      <input name="channel" type="text" placeholder="<?=$channelwlan0?>" required>
+      <input name="channel" type="text" placeholder="<?=$channelwlan0?>">
       </label>
       <br><br>
 
@@ -189,7 +113,7 @@ body {font-family: Arial;}
     <h3>Network config</h3>
     <form method="post">
       <label>Static IP Interface wlan0
-      <input name="staticIP" type="text" placeholder="<?=$ipwlan0?>" required>
+      <input name="staticIP" type="text" placeholder="<?=$ipwlan0?>">
       </label>
       <br><br>
 
@@ -200,22 +124,23 @@ body {font-family: Arial;}
 
       <p>DHCP Settings</p>
       <label>First IP
-      <input name="rangeStart" type="text" placeholder="<?=$dhcprangestart?>" required>
+      <input name="rangeStart" type="text" placeholder="<?=$dhcprangestart?>">
       </label>
       <br><br>
 
       <label>Last IP
-      <input name="rangeEnd" type="text" placeholder="<?=$dhcprangeend?>" required>
+      <input name="rangeEnd" type="text" placeholder="<?=$dhcprangeend?>">
       </label>
       <br><br>
 
       <label>DNS Servers for Clients
-      <input name="dnsClients" type="text" placeholder="<?=$dhcpdns?>" required>
+      <input name="dnsClients" type="text" placeholder="<?=$dhcpdns?>">
       </label>
       <br><br>
 
       <label for="leaseTime">Lease Time in Hours</label>
         <select name="leaseTime" id="leaseTime">
+	  <option value="" disabled selected><?=$dhcpleasetime?></option>
           <option value="2h">2h</option>
           <option value="4h">4h</option>
           <option value="6h">6h</option>
@@ -260,6 +185,7 @@ body {font-family: Arial;}
 
   <div id="ConnectWifi" class="tabcontent">
     <button onclick="scanwifi()">Scan WiFi Networks</button>
+    <button onclick="showexistingwifinetworks()">Show existing WiFi Networks</button>
     <button onclick="connecthidden()">Connect to hidden WiFi</button>
     <div id="emptyShell"></div>
   </div>
@@ -291,31 +217,37 @@ body {font-family: Arial;}
     var password = window.prompt("Enter the Password");
     //console.log(password); //kann weg
     //console.log(ssid); //kann weg
-    $.ajax({
-      type: "POST",
-      url: 'functions.php',
-      data: {writeWPAConf : true, ssid : ssid, password : password},
-      dataType: "json",
-      success: function(data){
-        alert(data);
-        location.reload();
-      },
-    });
+    if(password != null && password != ""){
+      $.ajax({
+        type: "POST",
+        url: 'functions.php',
+        data: {writeWPAConf : true, ssid : ssid, password : password},
+        dataType: "json",
+        success: function(data){
+          alert(data);
+          location.reload();
+        },
+      });
+    }
   }
 
   function connecthidden(){
     var ssid = window.prompt("Enter the SSID");
-    var password = window.prompt("Enter the Password");
-    $.ajax({
-      type: "POST",
-      url: 'functions.php',
-      data: {writeWPAConf : true, ssid : ssid, password : password, hidden : true},
-      dataType: "json",
-      success: function(data){
-        alert(data);
-        location.reload();
-      },
-    });
+    if(ssid != null && ssid != ""){
+      var password = window.prompt("Enter the Password");
+      if(password != null && password != ""){
+        $.ajax({
+          type: "POST",
+          url: 'functions.php',
+          data: {writeWPAConf : true, ssid : ssid, password : password, hidden : true},
+          dataType: "json",
+          success: function(data){
+            alert(data);
+            location.reload();
+          },
+        });
+      }
+    }
   }
 
   function scanresults(){ //retrieving scan results
@@ -343,7 +275,14 @@ body {font-family: Arial;}
     });
   }
 
-  async  function scanwifi(){
+  function showexistingwifinetworks(){
+    var elements =  document.getElementById("emptyShell");
+    while (elements.hasChildNodes()) {
+      elements.removeChild(elements.firstChild);
+    }
+  }
+
+  async  function scanwifi(){ // !!! Brauch ich hier eine asynchrone Funktion?
     // clear existing child nodes
     var elements =  document.getElementById("emptyShell");
     while (elements.hasChildNodes()) {
