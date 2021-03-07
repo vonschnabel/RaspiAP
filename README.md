@@ -24,7 +24,7 @@ sudo /bin/su -c "echo net.ipv4.ip_forward=1 >> /etc/sysctl.d/99-sysctl.conf"
 
 sudo reboot
 
-rfkill unblock 0
+sudo rfkill unblock 0
 sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 sudo iptables -t nat -A POSTROUTING -o wlan1 -j MASQUERADE
 sudo netfilter-persistent save
