@@ -147,6 +147,25 @@ if(isset($_POST['writeWPAConf'])){
   echo json_encode("wpa_supplicant Config erstellt");
 }
 
+if(isset($_POST['btnAddNetwork'])){
+  $ssid = $_POST['ssid'];
+  $psk = $_POST['password'];
+  if ($_POST['hidden'] == "true"){
+    $hidden = true;
+  }
+  else{
+    $hidden = false;
+  }
+  //$hidden = $_POST['hidden'];
+  addNetwork($ssid,$psk,$hidden);
+  echo json_encode("Network added");
+//  echo json_encode(addNetwork($ssid,$psk,$hidden));
+}
+
+if(isset($_POST['ConfiguredNetworks'])){
+  echo getConfiguredNetworks();
+}
+
 function wifiscan(){
   //echo "wpa_cli scan ";
   $chkok = exec('sudo /sbin/wpa_cli -i wlan1 scan');
@@ -168,6 +187,22 @@ function wifiscanresults(){
         continue;
       }
 
+	if($row[2] > -50){
+		$row[2] = "[ / / / / ]";
+	}
+	elseif($row[2] > -60){
+		$row[2] = "[ / / / ]";
+	}
+	elseif($row[2] > -70){
+		$row[2] = "[ / / ]";
+	}
+	else{
+		$row[2] = "[ / ]";
+	}
+
+//	$row[3] = str_replace("[","",$row[3]);
+//	$row[3] = str_replace("]"," ",$row[3]);
+
       $row_assoc['bssid'] = $row[0];
       $row_assoc['frequency'] = $row[1];
       $row_assoc['signal level'] = $row[2];
@@ -178,6 +213,18 @@ function wifiscanresults(){
     }
     //return $networks;
     echo json_encode($networks);
+}
+
+if(isset($_POST['btnRemoveNetwork'])) {
+  $id = $_POST['id'];
+  removeNetwork($id);
+  echo json_encode("Network removed");
+}
+
+if(isset($_POST['btnSelectNetwork'])) {
+  $id = $_POST['id'];
+  selectNetwork($id);
+  echo json_encode("connect to Network");
 }
 
 function getSystemConfig(){
@@ -298,6 +345,134 @@ function getFile(){
 	//echo $file;
 	echo $filecontent;
 }*/
+
+function getWPAState(){
+        exec('sudo /sbin/wpa_cli status',$result);
+        for($i = 0; $i < count($result); $i++){
+                if(strpos($result[$i],'wpa_state=') === 0){
+                        $wpa_state = explode('=',$result[$i]);
+                        $wpa_state = $wpa_state[1];
+                        return $wpa_state;
+                }
+        }
+}
+
+function getWLAN1_SSID(){
+        exec('sudo /sbin/wpa_cli status',$result);
+        for($i = 0; $i < count($result); $i++){
+                if(strpos($result[$i],'ssid=') === 0){
+                        $ssid = explode('=',$result[$i]);
+                        $ssid = $ssid[1];
+                        return $ssid;
+                }
+        }
+
+}
+
+function getWLAN1_IP(){
+        exec('sudo /sbin/wpa_cli status',$result);
+        for($i = 0; $i < count($result); $i++){
+                if(strpos($result[$i],'ip_address') === 0){
+                        $ip = explode('=',$result[$i]);
+                        $ip = $ip[1];
+                        return $ip;
+                }
+        }
+
+}
+
+function getWLAN1_Signal(){
+	exec('sudo /sbin/wpa_cli -i wlan1 signal_poll',$result);
+	$rssi = explode('=',$result[0]);
+//	$rssi = $rssi[1];
+	$linkspeed = explode('=',$result[1]);
+//	$linkspeed = $linkspeed[1];
+	$noise = explode('=',$result[2]);
+//	$noise = $noise[1];
+	$frequency = explode('=',$result[3]);
+//	$frequency = $frequency[1];*/
+
+//$rssi[1] = -80;
+
+	if($rssi[1] > -50){
+		$result[0] = "[ / / / / ]";
+	}
+	elseif($rssi[1] > -60){
+	        $result[0] = "[ / / / ]";
+	}
+	elseif($rssi[1] > -70){
+	        $result[0] = "[ / / ]";
+	}
+	else{
+		$result[0] = "[ / ]";
+	}
+	//$result[0] = $rssi[1]; // kann weg
+	$result[1] = $linkspeed[1];
+	$result[2] = $noise[1];
+	$result[3] = $frequency[1];
+	return $result;
+}
+
+function getConfiguredNetworks(){
+        exec('sudo /sbin/wpa_cli list_networks',$result);
+        $networks = array();
+        for($i = 2; $i < count($result); $i++){
+//                $net = preg_split('/\s+/',$result[$i]);
+                $net = preg_split('/[\t]/',$result[$i]);
+//                $net = $net[1];
+//                array_push($networks,$net);
+		$row['id'] = $net[0];
+		$row['ssid'] = $net[1];
+		$row['state'] = $net[3];
+		$networks[] = $row;
+        }
+	echo json_encode($networks);
+	//return $networks;
+}
+
+function removeNetwork($id){
+	exec("sudo /sbin/wpa_cli remove_network $id",$result,$code);
+	exec("sudo /sbin/wpa_cli save_config",$result,$code);
+        exec("sudo /sbin/wpa_cli -i wlan1 reconfigure",$result,$code);
+}
+
+function selectNetwork($id){
+	exec("sudo /sbin/wpa_cli -i wlan1 select_network $id",$result,$code);
+}
+
+function addNetwork($ssid,$psk,$hidden){
+        exec('sudo /sbin/wpa_cli list_networks',$result);
+        $networks = array();
+        for($i = 2; $i < count($result); $i++){
+                $net = preg_split('/[\t]/',$result[$i]);
+                $row['id'] = $net[0];
+                $row['ssid'] = $net[1];
+                $row['state'] = $net[3];
+                $networks[] = $row;
+        }
+
+	for($i = 0; $i < count($networks); $i++){
+		if($networks[$i]['ssid'] === $ssid){
+			removeNetwork($i);
+		}
+	}
+	exec("sudo /sbin/wpa_cli add_network",$resultnetwork,$code);
+	exec("sudo /sbin/wpa_cli set_network $resultnetwork[1] ssid '\"$ssid\"'",$result,$code);
+        exec("sudo /sbin/wpa_cli set_network $resultnetwork[1] psk '\"$psk\"'",$result,$code);
+	if($hidden === true){
+        	exec("sudo /sbin/wpa_cli set_network $resultnetwork[1] scan_ssid 1",$result,$code);
+	}
+	if(strlen($psk) == 0){
+		exec("sudo /sbin/wpa_cli set_network $resultnetwork[1] key_mgmt NONE",$result,$code);
+	}
+	else{
+		exec("sudo /sbin/wpa_cli set_network $resultnetwork[1] key_mgmt WPA-PSK",$result,$code);
+	}
+        exec("sudo /sbin/wpa_cli save_config",$result,$code);
+}
+//addNetwork("beitenu","aaaaaaaaaaaaaa",true);
+//removeNetwork(6);
+//echo "hallo";
 
 function writeDHCPCDConf($staticIP, $staticDNS){
 	$interface = "wlan0";
@@ -424,7 +599,9 @@ function writeWPAConf($ssid, $psk, $hidden, $countryCode){
 
         if($searchstring3count == 0){
           //array_unshift($result, "\n");
-          array_unshift($result, "country=" . $countryCode . "\n");
+          //array_unshift($result, "country=" . $countryCode . "\n");
+	  array_splice($result, 2, 0, "country=" . $countryCode . "\n");
+          array_splice($result, 3, 0, "\n");
         }
 	if($searchstring2count == 0){
 	  array_unshift($result, "update_config=1\n");
@@ -433,6 +610,12 @@ function writeWPAConf($ssid, $psk, $hidden, $countryCode){
           array_unshift($result, "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\n");
         }
 	$result = array_values($result);
+
+/*$i = 0;
+while($i < count($result)){
+	echo "$result[$i]<br>";
+	$i++;
+}*/
 
 	$wpa_file = fopen('/var/www/html/tmp/wpa_supplicant.conf', 'w') or die("Unable to open file!");
 	$i = 0;
@@ -557,59 +740,11 @@ function cleanUp(){
 	unlink('/var/www/html/tmp/wpa_supplicant.conf');
 }
 
-/*function wifiscan(){
-  $chkok = exec('sudo /sbin/wpa_cli -i wlan1 scan');
-  //echo $stdout;
-  if ($chkok === "OK") {
-    sleep(3);
-    exec('sudo /sbin/wpa_cli -i wlan1 scan_results', $result);
-
-    $networks = array();
-    foreach ($result as $key => $value) {
-      $row = explode("\t", $value);
-      if (!isset($row[4])) {
-        continue;
-      }
-
-      $row_assoc['bssid'] = $row[0];
-      $row_assoc['frequency'] = $row[1];
-      $row_assoc['signal level'] = $row[2];
-      $row_assoc['flags'] = $row[3];
-      $row_assoc['ssid'] = $row[4];
-
-      $networks[] = $row_assoc;
-    }
-
-    return $networks;
-
-  }
-  else {
-    return false;
-  }
-}*/
-
-//exec('sudo /bin/mv /var/www/html/tmp/hostapd.conf /etc/wpa_supplicant/hostapd.conf');
-//exec('sudo /bin/mv /var/www/html/tmp/hostapd.conf /etc/wpa_supplicant/test.txt');
-//exec('sudo /bin/rm /etc/wpa_supplicant/test.txt');
-//$file = fopen('/var/www/html/tmp/test.txt', 'w') or die("Unable to open file!");
-//fclose($file);
-
-
-//getFile();
-//writeWPAConf();
-//writeHostAPDConf();
-//writeDNSMasqConf();
-//writeDHCPCDConf();
-//cleanUp()
-
-//echo phpversion();
-
-//echo "programm aufruf<br>";
+//echo getWPAState();
 //echo "<br>";
-//writeWPAConf("heim", "1aaaaaa23123", false,"DE");
-//deleteSSID("beitenu");
+//echo getWLAN1_SSID();
+//echo "<br>";
+//echo getWLAN1_IP();
+//echo "<br>";
 
-
-//echo phpinfo();
-//echo phpversion();
 ?>

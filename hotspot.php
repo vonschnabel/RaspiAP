@@ -173,8 +173,14 @@ body {font-family: Arial;}
     <div class="w3-panel w3-card-4">
       <ul class="w3-ul">
         <li><h3>wlan1</h3></li>
-        <li>IP: <?=$ipwlan1?> /24</li>
-        <li>SSID: <?=$ssidwlan1?></li>
+<!--        <li>IP: <?=$ipwlan1?> /24</li> -->
+<!--        <li>SSID: <?=$ssidwlan1?></li> -->
+	<li>Status: <?=getWPAState()?></li>
+	<li>SSID: <?=getWLAN1_SSID()?></li>
+	<li>IP: <?=getWLAN1_IP()?> /24</li>
+        <li>SIGNAL: <?=getWLAN1_Signal()[0]?></li>
+        <li>SPEED: <?=getWLAN1_Signal()[1]?> Mb/s</li>
+        <li>FrEQEUNCY: <?=getWLAN1_Signal()[3]?> MHz</li>
       </ul>
     </div>
     <form method="post">
@@ -186,7 +192,7 @@ body {font-family: Arial;}
   <div id="ConnectWifi" class="tabcontent">
     <button onclick="scanwifi()">Scan WiFi Networks</button>
     <button onclick="showexistingwifinetworks()">Show existing WiFi Networks</button>
-    <button onclick="connecthidden()">Connect to hidden WiFi</button>
+    <button onclick="AddWifiNetwork(false,true)">Add hidden WiFi Network</button>
     <div id="emptyShell"></div>
   </div>
 
@@ -213,15 +219,27 @@ body {font-family: Arial;}
     return new Promise(resolve => setTimeout(resolve, milliseconds));
   }
 
-  function connectWifi(ssid){
+  function AddWifiNetwork(ssid,hidden){
+    if(ssid === false){
+      while(ssid === false || ssid == ""){
+        ssid = window.prompt("Enter the SSID");
+        if(!ssid){
+          return; // Cancel Button clicked
+        }
+      }
+    }
     var password = window.prompt("Enter the Password");
-    //console.log(password); //kann weg
-    //console.log(ssid); //kann weg
-    if(password != null && password != ""){
+    while(password != "" && password.length <8){
+      var password = window.prompt("Enter the Password");
+      if (!password) {
+          return; // Cancel Button clicked
+      }
+    }
+    if(password == "" || password.length >= 8){
       $.ajax({
         type: "POST",
         url: 'functions.php',
-        data: {writeWPAConf : true, ssid : ssid, password : password},
+        data: {btnAddNetwork : true, ssid : ssid, password : password, hidden : hidden},
         dataType: "json",
         success: function(data){
           alert(data);
@@ -231,7 +249,7 @@ body {font-family: Arial;}
     }
   }
 
-  function connecthidden(){
+/*  function Addhidden(){
     var ssid = window.prompt("Enter the SSID");
     if(ssid != null && ssid != ""){
       var password = window.prompt("Enter the Password");
@@ -239,7 +257,7 @@ body {font-family: Arial;}
         $.ajax({
           type: "POST",
           url: 'functions.php',
-          data: {writeWPAConf : true, ssid : ssid, password : password, hidden : true},
+          data: {btnAddNetwork : true, ssid : ssid, password : password, hidden : true},
           dataType: "json",
           success: function(data){
             alert(data);
@@ -248,6 +266,32 @@ body {font-family: Arial;}
         });
       }
     }
+  }*/
+
+  function RemoveNetwork(id){
+    $.ajax({
+      type: "POST",
+      url: 'functions.php',
+      data: {btnRemoveNetwork : true, id : id},
+      dataType: "json",
+      success: function(data){
+        alert(data);
+        location.reload();
+      },
+    });
+  }
+
+  function SelectNetwork(id){
+    $.ajax({
+      type: "POST",
+      url: 'functions.php',
+      data: {btnSelectNetwork : true, id : id},
+      dataType: "json",
+      success: function(data){
+        alert(data);
+        location.reload();
+      },
+    });
   }
 
   function scanresults(){ //retrieving scan results
@@ -258,7 +302,7 @@ body {font-family: Arial;}
       dataType: "json",
       success: function(data){
         networks = data;
-        //console.log(networks); //kann weg
+        console.log(networks); //kann weg
       },
     });
   }
@@ -275,14 +319,63 @@ body {font-family: Arial;}
     });
   }
 
-  function showexistingwifinetworks(){
+  function ConfiguredNetworks(){ //retrieving configured networks from wpa_cli command
+    $.ajax({
+      type: "POST",
+      url: 'functions.php',
+      data: {ConfiguredNetworks : true},
+      dataType: "json",
+      success: function(data){
+        networks = data;
+        //console.log(networks); //kann weg
+      },
+    });
+  }
+
+  async function showexistingwifinetworks(){
     var elements =  document.getElementById("emptyShell");
     while (elements.hasChildNodes()) {
       elements.removeChild(elements.firstChild);
     }
+
+    ConfiguredNetworks();
+    await Sleep(1000);
+    var numberOfElements = document.createTextNode("vorhandene Netzwerke: " + networks.length);
+    document.getElementById("emptyShell").appendChild(numberOfElements);
+    for(var i = 0; i < networks.length; i++){
+      var nodeDIV = document.createElement("DIV");
+      nodeDIV.className = "w3-panel w3-card";
+      var nodeUL = document.createElement("UL");
+      nodeUL.className = "w3-ul";
+      var nodeLiSSID = document.createElement("LI");
+      var nodeLiState = document.createElement("LI");
+      var ssidnode = document.createTextNode("SSID: " + networks[i]['ssid']);
+      var statenode = document.createTextNode("State: " + networks[i]['state']);
+
+      var nodeBtnRemove = document.createElement("BUTTON");
+      nodeBtnRemove.name='btnRemove';
+      nodeBtnRemove.onclick = function(){RemoveNetwork(this.id);};
+      nodeBtnRemove.innerHTML = "Remove Network";
+      nodeBtnRemove.setAttribute("id", networks[i]['id']);
+
+      var nodeBtnSelect = document.createElement("BUTTON");
+      nodeBtnSelect.name='btnSelectNetwork';
+      nodeBtnSelect.onclick = function(){SelectNetwork(this.id);};
+      nodeBtnSelect.innerHTML = "Connect to Network";
+      nodeBtnSelect.setAttribute("id", networks[i]['id']);
+
+      nodeLiSSID.appendChild(ssidnode);
+      nodeLiState.appendChild(statenode);
+      nodeUL.appendChild(nodeLiSSID);
+      nodeUL.appendChild(nodeLiState);
+      nodeUL.appendChild(nodeBtnRemove);
+      nodeUL.appendChild(nodeBtnSelect);
+      nodeDIV.appendChild(nodeUL);
+      document.getElementById("emptyShell").appendChild(nodeDIV);
+    }
   }
 
-  async  function scanwifi(){ // !!! Brauch ich hier eine asynchrone Funktion?
+  async  function scanwifi(){ // ?? Brauch ich hier eine asynchrone Funktion? Ja für die Await Sleep Funktion!!
     // clear existing child nodes
     var elements =  document.getElementById("emptyShell");
     while (elements.hasChildNodes()) {
@@ -333,12 +426,12 @@ body {font-family: Arial;}
       var flagsnode = document.createTextNode("Flags: " + networks[i]["flags"]);
 
       // <button onclick="scanwifi()">get node</button>
-      var nodeBtnConnect = document.createElement("BUTTON");
-      nodeBtnConnect.name='btnConnect';
+      var nodeBtnAddNetwork = document.createElement("BUTTON");
+      nodeBtnAddNetwork.name='btnAddNetwork';
       //nodeBtnConnect.onclick = connectWifi();
-      nodeBtnConnect.onclick = function(){connectWifi(this.id);};
-      nodeBtnConnect.innerHTML = "Connect to WiFi";
-      nodeBtnConnect.setAttribute("id", networks[i]["ssid"]);
+      nodeBtnAddNetwork.onclick = function(){AddWifiNetwork(this.id,false);};
+      nodeBtnAddNetwork.innerHTML = "Add WiFi Network";
+      nodeBtnAddNetwork.setAttribute("id", networks[i]["ssid"]);
 
       //nodeLiBSSID.appendChild(bssidnode); // wahrscheinlich nioht benoetigt
       nodeLiSSID.appendChild(ssidnode);
@@ -351,7 +444,7 @@ body {font-family: Arial;}
       nodeUL.appendChild(nodeLiFreq);
       nodeUL.appendChild(nodeLiSignal);
       nodeUL.appendChild(nodeLiFlags);
-      nodeUL.appendChild(nodeBtnConnect);
+      nodeUL.appendChild(nodeBtnAddNetwork);
       nodeDIV.appendChild(nodeUL);
 
       document.getElementById("emptyShell").appendChild(nodeDIV);
