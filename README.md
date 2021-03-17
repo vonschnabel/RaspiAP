@@ -29,11 +29,13 @@ sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 sudo iptables -t nat -A POSTROUTING -o wlan1 -j MASQUERADE
 sudo netfilter-persistent save
 
+sudo wget https://www.w3schools.com/w3css/4/w3.css
 git clone https://github.com/vonschnabel/RaspiAP.git
 
-sudo cp ./RaspiAP/090_raspap /etc/sudoers.d
-sudo cp ./RaspiAP/functions.php /var/www/html/
-sudo cp ./RaspiAP/hotspot.php /var/www/html/
+sudo mv w3.css /var/www/html/
+sudo mv ./RaspiAP/090_raspap /etc/sudoers.d
+sudo mv ./RaspiAP/functions.php /var/www/html/
+sudo mv ./RaspiAP/hotspot.php /var/www/html/
 ```
 ![Actual-Config](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/01-Actual-Config.PNG)
 ![Hotspot](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/02-Hotspot.PNG)
