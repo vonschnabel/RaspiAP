@@ -10,6 +10,29 @@
       exec('sudo /sbin/shutdown -h now');
   }
 
+  if(isset($_POST['btnVPN'])) {
+    $connect = $_POST['connect'];
+    if($connect == "true"){
+      exec('sudo /bin/systemctl start wg-quick@peer1');
+      echo json_encode("Wireguard started");
+    }
+    elseif($connect == "false"){
+      exec('sudo /bin/systemctl stop wg-quick@peer1');
+      echo json_encode("Wireguard stopped");
+    }
+  }
+
+  if(isset($_POST['VPNStatus'])) {
+    $stat = getVPNStatus();
+//    echo json_encode($stat);
+    if($stat == "active"){
+      echo json_encode(true);
+    }
+    elseif($stat == "inactive"){
+      echo json_encode(false);
+    }
+  }
+
   if(isset($_POST['btnScanWiFi'])) {
       //echo "Scanning";
       $networks = wifiscan();
@@ -143,7 +166,6 @@ if(isset($_POST['writeWPAConf'])){
     $hidden = "false";
     writeWPAConf($ssid, $password, $hidden, $countrycodewlan0);
   }
-
   echo json_encode("wpa_supplicant Config erstellt");
 }
 
@@ -225,6 +247,22 @@ if(isset($_POST['btnSelectNetwork'])) {
   $id = $_POST['id'];
   selectNetwork($id);
   echo json_encode("connect to Network");
+}
+
+function getVPNStatus(){
+  $vpnstatus = exec('sudo /bin/systemctl is-active wg-quick@peer1');
+  return $vpnstatus;
+}
+
+function getVPNStatushtmltag(){
+  $vpnstatus = exec('sudo /bin/systemctl is-active wg-quick@peer1');
+  if($vpnstatus == "active"){
+    $vpnstatus = "checked";
+  }
+  elseif($vpnstatus == "inactive"){
+    $vpnstatus = "";
+  }
+  return $vpnstatus;
 }
 
 function getSystemConfig(){

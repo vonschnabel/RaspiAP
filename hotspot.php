@@ -6,7 +6,8 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<!-- <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"> -->
+<link rel="stylesheet" href="w3.css">
 <style>
 
 body {font-family: Arial;}
@@ -59,6 +60,72 @@ body {font-family: Arial;}
   to {opacity: 1;}
 }
 
+
+
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+
+
+
 </style>
 </head>
 <body>
@@ -69,6 +136,7 @@ body {font-family: Arial;}
     <button class="tablinks" onclick="openTab(event, 'Hotspot')">Hotspot</button>
     <button class="tablinks" onclick="openTab(event, 'Network')">Network Settings</button>
     <button class="tablinks" onclick="openTab(event, 'ConnectWifi')">Connect to WiFi</button>
+    <button class="tablinks" onclick="openTab(event, 'VPNConfig')">VPN Config</button>
   </div>
 
   <div id="Hotspot" class="tabcontent">
@@ -195,6 +263,14 @@ body {font-family: Arial;}
     <button onclick="AddWifiNetwork(false,true)">Add hidden WiFi Network</button>
     <div id="emptyShell"></div>
   </div>
+  <div id="VPNConfig" class="tabcontent">
+<!--    <div id="emptyShellVPN"></div> -->
+    VPN is <span id="status">turned off</span>.
+    <label class="switch">
+      <input id="switchVPN" type="checkbox" <?=getVPNStatushtmltag()?>>
+      <span class="slider round"></span>
+    </label>
+  </div>
 
   <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
   <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
@@ -212,6 +288,59 @@ body {font-family: Arial;}
     document.getElementById(TabName).style.display = "block";
     evt.currentTarget.className += " active";
   }
+
+
+
+
+/*
+    var element =  document.getElementById("emptyShellVPN");
+    var vpnstatus = "empty";
+    $.ajax({
+      type: "POST",
+      url: 'functions.php',
+      data: {VPNStatus : true},
+      dataType: "json",
+      success: function(data){
+        //alert(data);
+        //location.reload();
+        console.log(data);
+        vpnstatus = data;
+//        getAJAXResponse(data);
+      },
+    });
+//	console.log(vpnstatus);
+
+    var nodeDIV = document.createElement("DIV");
+    var nodeTextVPN = document.createTextNode("VPN Text");
+//    var nodeINPUT = document.createElement("INPUT");
+//    if(vpnstatus == "active"){
+//      nodeINPUT.setAttribute("type", "checkbox" checked);
+//	alert("active text");
+//    }
+//    else if(vpnstatus == "inactive"){
+//      nodeINPUT.setAttribute("type", "checkbox");
+//	alert("inactive text");
+//    }
+//    nodeINPUT.setAttribute("id", "switchVPN");
+
+    nodeDIV.appendChild(nodeTextVPN);
+//    nodeDIV.appendChild(nodeINPUT);
+    element.appendChild(nodeDIV);
+*/
+    var input = document.getElementById('switchVPN');
+    var outputtext = document.getElementById('status');
+
+    input.addEventListener('change',function(){
+      if(this.checked) {
+        outputtext.innerHTML = "turned on";
+        StartVPN();
+      }
+      else {
+        outputtext.innerHTML = "turned off";
+        StopVPN();
+      }
+    });
+
 
 
 
@@ -267,6 +396,32 @@ body {font-family: Arial;}
       }
     }
   }*/
+
+  function StartVPN(){
+    $.ajax({
+      type: "POST",
+      url: 'functions.php',
+      data: {btnVPN : true, connect : true},
+      dataType: "json",
+      success: function(data){
+        alert(data);
+        //location.reload();
+      },
+    });
+  }
+
+  function StopVPN(){
+    $.ajax({
+      type: "POST",
+      url: 'functions.php',
+      data: {btnVPN : true, connect : false},
+      dataType: "json",
+      success: function(data){
+        alert(data);
+        //location.reload();
+      },
+    });
+  }
 
   function RemoveNetwork(id){
     $.ajax({
@@ -340,7 +495,7 @@ body {font-family: Arial;}
 
     ConfiguredNetworks();
     await Sleep(1000);
-    var numberOfElements = document.createTextNode("vorhandene Netzwerke: " + networks.length);
+    var numberOfElements = document.createTextNode("existing Networks: " + networks.length);
     document.getElementById("emptyShell").appendChild(numberOfElements);
     for(var i = 0; i < networks.length; i++){
       var nodeDIV = document.createElement("DIV");
@@ -402,7 +557,7 @@ body {font-family: Arial;}
       //console.log("scan result while loop"); //kann weg
     }
 
-    var numberOfElements = document.createTextNode("gefundene Netzwerke: " + networks.length);
+    var numberOfElements = document.createTextNode("found Networks: " + networks.length);
     document.getElementById("emptyShell").appendChild(numberOfElements);
     for(var i = 0; i < networks.length; i++){
       var nodeDIV = document.createElement("DIV");
