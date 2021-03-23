@@ -137,6 +137,7 @@ input:checked + .slider:before {
     <button class="tablinks" onclick="openTab(event, 'Network')">Network Settings</button>
     <button class="tablinks" onclick="openTab(event, 'ConnectWifi')">Connect to WiFi</button>
     <button class="tablinks" onclick="openTab(event, 'VPNConfig')">VPN Config</button>
+    <button class="tablinks" onclick="openTab(event, 'ConnectedClients')">Connected Clients</button>
   </div>
 
   <div id="Hotspot" class="tabcontent">
@@ -248,7 +249,7 @@ input:checked + .slider:before {
 	<li>IP: <?=getWLAN1_IP()?> /24</li>
         <li>SIGNAL: <?=getWLAN1_Signal()[0]?></li>
         <li>SPEED: <?=getWLAN1_Signal()[1]?> Mb/s</li>
-        <li>FrEQEUNCY: <?=getWLAN1_Signal()[3]?> MHz</li>
+        <li>FREQENCY: <?=getWLAN1_Signal()[3]?> MHz</li>
       </ul>
     </div>
     <form method="post">
@@ -264,12 +265,16 @@ input:checked + .slider:before {
     <div id="emptyShell"></div>
   </div>
   <div id="VPNConfig" class="tabcontent">
-<!--    <div id="emptyShellVPN"></div> -->
     VPN is <span id="status">turned off</span>.
     <label class="switch">
       <input id="switchVPN" type="checkbox" <?=getVPNStatushtmltag()?>>
       <span class="slider round"></span>
     </label>
+  </div>
+
+  <div id="ConnectedClients" class="tabcontent">
+    <button onclick="showConnectedClients()">show connected clients</button>
+    <div id="emptyShellClients"></div>
   </div>
 
   <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
@@ -457,7 +462,7 @@ input:checked + .slider:before {
       dataType: "json",
       success: function(data){
         networks = data;
-        console.log(networks); //kann weg
+        //console.log(networks); //kann weg
       },
     });
   }
@@ -487,6 +492,19 @@ input:checked + .slider:before {
     });
   }
 
+  function ConnectedClients(){ //retrieving connected clients
+    $.ajax({
+      type: "POST",
+      url: 'functions.php',
+      data: {ConnectedClients : true},
+      dataType: "json",
+      success: function(data){
+        clients = data;
+        console.log(clients); //kann weg
+      },
+    });
+  }
+
   async function showexistingwifinetworks(){
     var elements =  document.getElementById("emptyShell");
     while (elements.hasChildNodes()) {
@@ -494,7 +512,7 @@ input:checked + .slider:before {
     }
 
     ConfiguredNetworks();
-    await Sleep(1000);
+    await Sleep(200); // used to avoid the error that networks is not defined
     var numberOfElements = document.createTextNode("existing Networks: " + networks.length);
     document.getElementById("emptyShell").appendChild(numberOfElements);
     for(var i = 0; i < networks.length; i++){
@@ -506,6 +524,11 @@ input:checked + .slider:before {
       var nodeLiState = document.createElement("LI");
       var ssidnode = document.createTextNode("SSID: " + networks[i]['ssid']);
       var statenode = document.createTextNode("State: " + networks[i]['state']);
+
+//      nodeLiSSID.setAttribute("style","width:50%");
+//      nodeLiState.setAttribute("style","width:50%");
+//      nodeUL.setAttribute("style","width:50%");
+      nodeDIV.setAttribute("style","width:30%");
 
       var nodeBtnRemove = document.createElement("BUTTON");
       nodeBtnRemove.name='btnRemove';
@@ -527,6 +550,60 @@ input:checked + .slider:before {
       nodeUL.appendChild(nodeBtnSelect);
       nodeDIV.appendChild(nodeUL);
       document.getElementById("emptyShell").appendChild(nodeDIV);
+    }
+  }
+
+  async  function showConnectedClients(){
+    var elements =  document.getElementById("emptyShellClients");
+    while (elements.hasChildNodes()) {
+      elements.removeChild(elements.firstChild);
+    }
+
+    ConnectedClients();
+    await Sleep(200); // used to avoid the error that clients is not defined
+
+    var numberOfElements = document.createTextNode("Connected Clients: " + clients.length);
+    elements.appendChild(numberOfElements);
+
+    for(var i = 0; i < clients.length; i++){
+      var nodeDIV = document.createElement("DIV");
+      nodeDIV.className = "w3-panel w3-card";
+      var nodeUL = document.createElement("UL");
+      nodeUL.className = "w3-ul";
+      var nodeLiStation = document.createElement("LI");
+      var nodeLiRXBytes = document.createElement("LI");
+      var nodeLiTXBytes = document.createElement("LI");
+      var nodeLiRXBitrate = document.createElement("LI");
+      var nodeLiTXBitrate = document.createElement("LI");
+      var nodeLiSignal = document.createElement("LI");
+      var nodeLiConnectedTime = document.createElement("LI");
+
+      var stationnode = document.createTextNode("Station: " + clients[i]['station']);
+      var rxbytesnode = document.createTextNode("Received Data: " + clients[i]['rxbytes']);
+      var txbytesnode = document.createTextNode("Transmitted Data: " + clients[i]['txbytes']);
+      var rxbitratenode = document.createTextNode("Receive Bitrate: " + clients[i]['rxbitrate']);
+      var txbitratenode = document.createTextNode("Transmit Bitrate: " + clients[i]['txbitrate']);
+      var signalnode = document.createTextNode("Signal Strength: " + clients[i]['signal']);
+      var connectedtimenode = document.createTextNode("Connected Time: " + clients[i]['connectedtime']);
+
+      nodeLiStation.appendChild(stationnode);
+      nodeLiRXBytes.appendChild(rxbytesnode);
+      nodeLiTXBytes.appendChild(txbytesnode);
+      nodeLiRXBitrate.appendChild(rxbitratenode);
+      nodeLiTXBitrate.appendChild(txbitratenode);
+      nodeLiSignal.appendChild(signalnode);
+      nodeLiConnectedTime.appendChild(connectedtimenode);
+
+      nodeUL.appendChild(nodeLiStation);
+      nodeUL.appendChild(nodeLiRXBytes);
+      nodeUL.appendChild(nodeLiTXBytes);
+      nodeUL.appendChild(nodeLiRXBitrate);
+      nodeUL.appendChild(nodeLiTXBitrate);
+      nodeUL.appendChild(nodeLiSignal);
+      nodeUL.appendChild(nodeLiConnectedTime);
+
+      nodeDIV.appendChild(nodeUL);
+      elements.appendChild(nodeDIV);
     }
   }
 

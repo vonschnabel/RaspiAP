@@ -188,6 +188,10 @@ if(isset($_POST['ConfiguredNetworks'])){
   echo getConfiguredNetworks();
 }
 
+if(isset($_POST['ConnectedClients'])){
+  echo getStationDump();
+}
+
 function wifiscan(){
   //echo "wpa_cli scan ";
   $chkok = exec('sudo /sbin/wpa_cli -i wlan1 scan');
@@ -263,6 +267,97 @@ function getVPNStatushtmltag(){
     $vpnstatus = "";
   }
   return $vpnstatus;
+}
+
+function getStationDump(){
+  exec('sudo /sbin/iw dev wlan0 station dump',$result,$code);
+  $returnarray = array();
+
+  for($i=0; $i < count($result); $i++) {
+    if(strpos($result[$i],'Station') === 0){
+      if(isset($row)){
+        array_push($returnarray, $row );
+      }
+      $row = array();
+      $station = explode(' ',$result[$i]);
+      $station = $station[1];
+      $row['station'] = $station;
+    }
+    if(strpos($result[$i],'rx bytes') === 1){
+      $rxbytes = explode(':',$result[$i]);
+      $rxbytes = $rxbytes[1];
+      $j = 0;
+      while($rxbytes > 1000){
+        $rxbytes = $rxbytes / 1024;
+        $j++;
+      }
+      $rxbytes = number_format($rxbytes, 2);
+      if($j == 0){
+        $rxbytes = $rxbytes . " Byte";
+      }
+      elseif($j == 1){
+        $rxbytes = $rxbytes . " KB";
+      }
+      elseif($j == 2){
+        $rxbytes = $rxbytes . " MB";
+      }
+      elseif($j == 3){
+        $rxbytes = $rxbytes . " GB";
+      }
+      $row['rxbytes'] = $rxbytes;
+    }
+    if(strpos($result[$i],'tx bytes') === 1){
+      $txbytes = explode(':',$result[$i]);
+      $txbytes = $txbytes[1];
+      $j = 0;
+      while($txbytes > 1000){
+        $txbytes = $txbytes / 1024;
+        $j++;
+      }
+      $txbytes = number_format($txbytes, 2);
+      if($j == 0){
+        $txbytes = $txbytes . " Byte";
+      }
+      elseif($j == 1){
+        $txbytes = $txbytes . " KB";
+      }
+      elseif($j == 2){
+        $txbytes = $txbytes . " MB";
+      }
+      elseif($j == 3){
+        $txbytes = $txbytes . " GB";
+      }
+      $row['txbytes'] = $txbytes;
+    }
+    if(strpos($result[$i],'rx bitrate') === 1){
+      $rxbitrate = explode(':',$result[$i]);
+      $rxbitrate = trim($rxbitrate[1], "\t");
+      $row['rxbitrate'] = $rxbitrate;
+    }
+    if(strpos($result[$i],'tx bitrate') === 1){
+      $txbitrate = explode(':',$result[$i]);
+      $txbitrate = trim($txbitrate[1], "\t");
+      $row['txbitrate'] = $txbitrate;
+    }
+    if(strpos($result[$i],'signal') === 1){
+      $signal = explode(':',$result[$i]);
+      $signal = $signal[1];
+      $signal = explode(' ',$signal);
+      $signal = trim($signal[2], "\t");
+      $row['signal'] = $signal;
+    }
+    if(strpos($result[$i],'connected time') === 1){
+      $connectedtime = explode(':',$result[$i]);
+      $connectedtime = explode(' ',$connectedtime[1]);
+      $connectedtime = trim($connectedtime[0], "\t");
+//$connectedtime = 86399;
+      $connectedtime = getElapsedTime($connectedtime);
+      $row['connectedtime'] = $connectedtime;
+    }
+  }
+  array_push($returnarray, $row );
+
+  echo json_encode($returnarray);
 }
 
 function getSystemConfig(){
@@ -768,6 +863,67 @@ function writeHostAPDConf($ssid, $psk, $country_code, $hw_mode, $channel){
 	fwrite($hostapd_file, "wpa_pairwise=TKIP".PHP_EOL);
 	fwrite($hostapd_file, "rsn_pairwise=CCMP".PHP_EOL);
 	fclose($hostapd_file);
+}
+
+function getElapsedTime($time){
+
+  $day = 86400;
+  $hour = 3600;
+  $minute = 60;
+
+  $d = 0;
+  $h = 0;
+  $m = 0;
+  $s = 0;
+
+  while($time >= $day){
+    $time = $time - $day;
+    $d++;
+  }
+  while($time >= $hour){
+    $time = $time - $hour;
+    $h++;
+  }
+  while($time >= $minute){
+    $time = $time - $minute;
+    $m++;
+  }
+  $s = $time;
+
+  $elapsedtime = "";
+
+  if($d > 0){
+    $elapsedtime = $elapsedtime . $d . " days ";
+  }
+  if($h > 0){
+    if($h < 10){
+      $h = "0" . $h;
+    }
+    $elapsedtime = $elapsedtime . $h . ":";
+  }
+  elseif($h == 0){
+    $elapsedtime = $elapsedtime . "00" . ":";
+  }
+  if($m > 0){
+    if($m < 10){
+      $m = "0" . $m;
+    }
+    $elapsedtime = $elapsedtime . $m . ":";
+  }
+  elseif($m == 0){
+    $elapsedtime = $elapsedtime . "00" . ":";
+  }
+  if($s > 0){
+    if($s < 10){
+      $s = "0" . $s;
+    }
+    $elapsedtime = $elapsedtime . $s;
+  }
+  elseif($s == 0){
+    $elapsedtime = $elapsedtime . "00";
+  }
+
+  return  $elapsedtime;
 }
 
 function cleanUp(){
