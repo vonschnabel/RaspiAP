@@ -4,6 +4,9 @@ www-data ALL=(ALL) NOPASSWD:/bin/cp /var/www/html/tmp/090_raspap.conf /etc/dnsma
 www-data ALL=(ALL) NOPASSWD:/bin/cp /var/www/html/tmp/dhcpcd.conf /etc/dhcpcd.conf
 
 www-data ALL=(ALL) NOPASSWD:/sbin/ip
+www-data ALL=(ALL) NOPASSWD:/sbin/ip link set wlan1 down
+www-data ALL=(ALL) NOPASSWD:/sbin/ip link set wlan1 address *
+www-data ALL=(ALL) NOPASSWD:/sbin/ip link set wlan1 up
 
 www-data ALL=(ALL) NOPASSWD:/sbin/wpa_cli -i wlan1 scan
 www-data ALL=(ALL) NOPASSWD:/sbin/wpa_cli -i wlan1 scan_results
@@ -33,6 +36,8 @@ www-data ALL=(ALL) NOPASSWD:/sbin/wpa_cli remove_network [0-9]*
 www-data ALL=(ALL) NOPASSWD:/sbin/wpa_cli status
 www-data ALL=(ALL) NOPASSWD:/sbin/wpa_cli -i wlan1 signal_poll
 www-data ALL=(ALL) NOPASSWD:/sbin/wpa_cli save_config
+
+www-data ALL=(ALL) NOPASSWD:/sbin/iw dev wlan0 station dump
 
 www-data ALL=(ALL) NOPASSWD:/bin/systemctl is-active wg-quick@peer1
 www-data ALL=(ALL) NOPASSWD:/bin/systemctl start wg-quick@peer1

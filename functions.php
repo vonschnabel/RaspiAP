@@ -253,6 +253,13 @@ if(isset($_POST['btnSelectNetwork'])) {
   echo json_encode("connect to Network");
 }
 
+if(isset($_POST['btnChangeMACAddress'])) {
+  $newmac = $_POST['macaddress'];
+  exec('sudo /sbin/ip link set wlan1 down');
+  exec('sudo /sbin/ip link set wlan1 address ' . $newmac);
+  exec('sudo /sbin/ip link set wlan1 up');
+}
+
 function getVPNStatus(){
   $vpnstatus = exec('sudo /bin/systemctl is-active wg-quick@peer1');
   return $vpnstatus;
@@ -478,6 +485,11 @@ function getFile(){
 	//echo $file;
 	echo $filecontent;
 }*/
+
+function getMACAddress(){
+	exec('/bin/cat /sys/class/net/wlan1/address',$result);
+	return $result[0];
+}
 
 function getWPAState(){
         exec('sudo /sbin/wpa_cli status',$result);

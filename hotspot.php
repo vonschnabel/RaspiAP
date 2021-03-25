@@ -9,7 +9,9 @@
 <!-- <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"> -->
 <link rel="stylesheet" href="w3.css">
 <style>
-
+* {
+  box-sizing: border-box;
+} ///////////>> hier <<////////////////////
 body {font-family: Arial;}
 
 /* Style the tab */
@@ -59,6 +61,46 @@ body {font-family: Arial;}
   from {opacity: 0;}
   to {opacity: 1;}
 }
+
+
+
+
+
+
+
+/* Create four equal columns that floats next to each other */
+.column {
+  float: left;
+  width: 25%;
+  padding: 10px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Responsive layout - makes a two column-layout instead of four columns */
+@media screen and (max-width: 900px) {
+  .column  {
+    width: 50%;
+  }
+}
+
+/* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 600px) {
+  .column  {
+    width: 100%;
+  }
+}
+
+
+
+
+
+
 
 
 
@@ -222,6 +264,16 @@ input:checked + .slider:before {
   </div>
 
   <div id="ActualConfig" class="tabcontent">
+    <button id="toggleMACAddressbtn" onclick="toggleMACAddressChanger()">Change wlan1 MAC</button>
+    <div id="MACAdressDIV" style="display: none;">
+      <form method="post">
+        <input name="macaddress" type="text" placeholder="<?=getMACAddress()?>" required>
+        <button name="btnChangeMACAddress">Change MAC</button>
+      </form>
+      <button onclick="generateMACAddress()">Generate wlan1 MAC</button>
+      <div id="emptyShellMACAdress" style="display: none;">
+      </div>
+    </div>
     <div class="w3-panel w3-card">
       <ul class="w3-ul">
         <li><h3>eth0</h3></li>
@@ -247,6 +299,7 @@ input:checked + .slider:before {
 	<li>Status: <?=getWPAState()?></li>
 	<li>SSID: <?=getWLAN1_SSID()?></li>
 	<li>IP: <?=getWLAN1_IP()?> /24</li>
+	<li>MAC: <?=getMACAddress()?></li>
         <li>SIGNAL: <?=getWLAN1_Signal()[0]?></li>
         <li>SPEED: <?=getWLAN1_Signal()[1]?> Mb/s</li>
         <li>FREQENCY: <?=getWLAN1_Signal()[3]?> MHz</li>
@@ -260,9 +313,9 @@ input:checked + .slider:before {
 
   <div id="ConnectWifi" class="tabcontent">
     <button onclick="scanwifi()">Scan WiFi Networks</button>
-    <button onclick="showexistingwifinetworks()">Show existing WiFi Networks</button>
+    <button onclick="showexistingwifinetworks()">Show saved WiFi Networks</button>
     <button onclick="AddWifiNetwork(false,true)">Add hidden WiFi Network</button>
-    <div id="emptyShell"></div>
+    <div id="emptyShell" class="row"></div>
   </div>
   <div id="VPNConfig" class="tabcontent">
     VPN is <span id="status">turned off</span>.
@@ -274,7 +327,7 @@ input:checked + .slider:before {
 
   <div id="ConnectedClients" class="tabcontent">
     <button onclick="showConnectedClients()">show connected clients</button>
-    <div id="emptyShellClients"></div>
+    <div id="emptyShellClients" class="row"></div>
   </div>
 
   <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
@@ -294,44 +347,7 @@ input:checked + .slider:before {
     evt.currentTarget.className += " active";
   }
 
-
-
-
-/*
-    var element =  document.getElementById("emptyShellVPN");
-    var vpnstatus = "empty";
-    $.ajax({
-      type: "POST",
-      url: 'functions.php',
-      data: {VPNStatus : true},
-      dataType: "json",
-      success: function(data){
-        //alert(data);
-        //location.reload();
-        console.log(data);
-        vpnstatus = data;
-//        getAJAXResponse(data);
-      },
-    });
-//	console.log(vpnstatus);
-
-    var nodeDIV = document.createElement("DIV");
-    var nodeTextVPN = document.createTextNode("VPN Text");
-//    var nodeINPUT = document.createElement("INPUT");
-//    if(vpnstatus == "active"){
-//      nodeINPUT.setAttribute("type", "checkbox" checked);
-//	alert("active text");
-//    }
-//    else if(vpnstatus == "inactive"){
-//      nodeINPUT.setAttribute("type", "checkbox");
-//	alert("inactive text");
-//    }
-//    nodeINPUT.setAttribute("id", "switchVPN");
-
-    nodeDIV.appendChild(nodeTextVPN);
-//    nodeDIV.appendChild(nodeINPUT);
-    element.appendChild(nodeDIV);
-*/
+    // VPN Switch
     var input = document.getElementById('switchVPN');
     var outputtext = document.getElementById('status');
 
@@ -346,8 +362,63 @@ input:checked + .slider:before {
       }
     });
 
+  function toggleMACAddressChanger(){
+    var togglebtn = document.getElementById("toggleMACAddressbtn");
+    var elements = document.getElementById("MACAdressDIV");
+    if (elements.style.display === "none") {
+      elements.style.display = "block";
+      togglebtn.innerHTML = "toggle";
+    }
+    else {
+      elements.style.display = "none";
+      togglebtn.innerHTML = "Change wlan1 MAC";
+    }
+  }
 
+  function generateMACAddress(){
+    var elements = document.getElementById("emptyShellMACAdress");
+    if (elements.style.display === "none") {
+      elements.style.display = "block";
+    }
+    while (elements.hasChildNodes()) {
+      elements.removeChild(elements.firstChild);
+    }
 
+    var MACCharsArray = ["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]
+//    var newaddress = MACCharsArray[Math.floor(Math.random()*MACCharsArray.length)];
+//    newaddress = newaddress + MACCharsArray[Math.floor(Math.random()*MACCharsArray.length)] + ":";
+    var newaddress = "00:"
+    newaddress = newaddress + MACCharsArray[Math.floor(Math.random()*MACCharsArray.length)];
+    newaddress = newaddress + MACCharsArray[Math.floor(Math.random()*MACCharsArray.length)] + ":";
+    newaddress = newaddress + MACCharsArray[Math.floor(Math.random()*MACCharsArray.length)];
+    newaddress = newaddress + MACCharsArray[Math.floor(Math.random()*MACCharsArray.length)] + ":";
+    newaddress = newaddress + MACCharsArray[Math.floor(Math.random()*MACCharsArray.length)];
+    newaddress = newaddress + MACCharsArray[Math.floor(Math.random()*MACCharsArray.length)] + ":";
+    newaddress = newaddress + MACCharsArray[Math.floor(Math.random()*MACCharsArray.length)];
+    newaddress = newaddress + MACCharsArray[Math.floor(Math.random()*MACCharsArray.length)] + ":";
+    newaddress = newaddress + MACCharsArray[Math.floor(Math.random()*MACCharsArray.length)];
+    newaddress = newaddress + MACCharsArray[Math.floor(Math.random()*MACCharsArray.length)];
+
+    var MACAdressnode = document.createTextNode(newaddress);
+    var nodeBtnSubmitMACAddress = document.createElement("BUTTON");
+    nodeBtnSubmitMACAddress.innerHTML = "Change MAC";
+    nodeBtnSubmitMACAddress.onclick = function(){ChangeMACAddress(newaddress);};
+    elements.appendChild(MACAdressnode);
+    elements.appendChild(nodeBtnSubmitMACAddress);
+  }
+
+  function ChangeMACAddress(newaddress){
+    $.ajax({
+      type: "POST",
+      url: 'functions.php',
+      data: {btnChangeMACAddress : true, macaddress : newaddress},
+      dataType: "json",
+      success: function(data){
+        //alert(data);
+        location.reload();
+      },
+    });
+  }
 
   function Sleep(milliseconds) {
     return new Promise(resolve => setTimeout(resolve, milliseconds));
@@ -500,7 +571,7 @@ input:checked + .slider:before {
       dataType: "json",
       success: function(data){
         clients = data;
-        console.log(clients); //kann weg
+        //console.log(clients); //kann weg
       },
     });
   }
@@ -528,7 +599,7 @@ input:checked + .slider:before {
 //      nodeLiSSID.setAttribute("style","width:50%");
 //      nodeLiState.setAttribute("style","width:50%");
 //      nodeUL.setAttribute("style","width:50%");
-      nodeDIV.setAttribute("style","width:30%");
+//      nodeDIV.setAttribute("style","width:30%");
 
       var nodeBtnRemove = document.createElement("BUTTON");
       nodeBtnRemove.name='btnRemove';
@@ -561,49 +632,55 @@ input:checked + .slider:before {
 
     ConnectedClients();
     await Sleep(200); // used to avoid the error that clients is not defined
+    //console.log(clients.length);
+    if(clients[0] == null){
+      var numberOfElements = document.createTextNode("Connected Clients: 0");
+      elements.appendChild(numberOfElements);
+    }
+    else{
+      var numberOfElements = document.createTextNode("Connected Clients: " + clients.length);
+      elements.appendChild(numberOfElements);
 
-    var numberOfElements = document.createTextNode("Connected Clients: " + clients.length);
-    elements.appendChild(numberOfElements);
+      for(var i = 0; i < clients.length; i++){
+        var nodeDIV = document.createElement("DIV");
+        nodeDIV.className = "w3-panel w3-card";
+        var nodeUL = document.createElement("UL");
+        nodeUL.className = "w3-ul";
+        var nodeLiStation = document.createElement("LI");
+        var nodeLiRXBytes = document.createElement("LI");
+        var nodeLiTXBytes = document.createElement("LI");
+        var nodeLiRXBitrate = document.createElement("LI");
+        var nodeLiTXBitrate = document.createElement("LI");
+        var nodeLiSignal = document.createElement("LI");
+        var nodeLiConnectedTime = document.createElement("LI");
 
-    for(var i = 0; i < clients.length; i++){
-      var nodeDIV = document.createElement("DIV");
-      nodeDIV.className = "w3-panel w3-card";
-      var nodeUL = document.createElement("UL");
-      nodeUL.className = "w3-ul";
-      var nodeLiStation = document.createElement("LI");
-      var nodeLiRXBytes = document.createElement("LI");
-      var nodeLiTXBytes = document.createElement("LI");
-      var nodeLiRXBitrate = document.createElement("LI");
-      var nodeLiTXBitrate = document.createElement("LI");
-      var nodeLiSignal = document.createElement("LI");
-      var nodeLiConnectedTime = document.createElement("LI");
+        var stationnode = document.createTextNode("Station: " + clients[i]['station']);
+        var rxbytesnode = document.createTextNode("Received Data: " + clients[i]['rxbytes']);
+        var txbytesnode = document.createTextNode("Transmitted Data: " + clients[i]['txbytes']);
+        var rxbitratenode = document.createTextNode("Receive Bitrate: " + clients[i]['rxbitrate']);
+        var txbitratenode = document.createTextNode("Transmit Bitrate: " + clients[i]['txbitrate']);
+        var signalnode = document.createTextNode("Signal Strength: " + clients[i]['signal']);
+        var connectedtimenode = document.createTextNode("Connected Time: " + clients[i]['connectedtime']);
 
-      var stationnode = document.createTextNode("Station: " + clients[i]['station']);
-      var rxbytesnode = document.createTextNode("Received Data: " + clients[i]['rxbytes']);
-      var txbytesnode = document.createTextNode("Transmitted Data: " + clients[i]['txbytes']);
-      var rxbitratenode = document.createTextNode("Receive Bitrate: " + clients[i]['rxbitrate']);
-      var txbitratenode = document.createTextNode("Transmit Bitrate: " + clients[i]['txbitrate']);
-      var signalnode = document.createTextNode("Signal Strength: " + clients[i]['signal']);
-      var connectedtimenode = document.createTextNode("Connected Time: " + clients[i]['connectedtime']);
+        nodeLiStation.appendChild(stationnode);
+        nodeLiRXBytes.appendChild(rxbytesnode);
+        nodeLiTXBytes.appendChild(txbytesnode);
+        nodeLiRXBitrate.appendChild(rxbitratenode);
+        nodeLiTXBitrate.appendChild(txbitratenode);
+        nodeLiSignal.appendChild(signalnode);
+        nodeLiConnectedTime.appendChild(connectedtimenode);
 
-      nodeLiStation.appendChild(stationnode);
-      nodeLiRXBytes.appendChild(rxbytesnode);
-      nodeLiTXBytes.appendChild(txbytesnode);
-      nodeLiRXBitrate.appendChild(rxbitratenode);
-      nodeLiTXBitrate.appendChild(txbitratenode);
-      nodeLiSignal.appendChild(signalnode);
-      nodeLiConnectedTime.appendChild(connectedtimenode);
+        nodeUL.appendChild(nodeLiStation);
+        nodeUL.appendChild(nodeLiRXBytes);
+        nodeUL.appendChild(nodeLiTXBytes);
+        nodeUL.appendChild(nodeLiRXBitrate);
+        nodeUL.appendChild(nodeLiTXBitrate);
+        nodeUL.appendChild(nodeLiSignal);
+        nodeUL.appendChild(nodeLiConnectedTime);
 
-      nodeUL.appendChild(nodeLiStation);
-      nodeUL.appendChild(nodeLiRXBytes);
-      nodeUL.appendChild(nodeLiTXBytes);
-      nodeUL.appendChild(nodeLiRXBitrate);
-      nodeUL.appendChild(nodeLiTXBitrate);
-      nodeUL.appendChild(nodeLiSignal);
-      nodeUL.appendChild(nodeLiConnectedTime);
-
-      nodeDIV.appendChild(nodeUL);
-      elements.appendChild(nodeDIV);
+        nodeDIV.appendChild(nodeUL);
+        elements.appendChild(nodeDIV);
+      }
     }
   }
 
@@ -678,7 +755,6 @@ input:checked + .slider:before {
       nodeUL.appendChild(nodeLiFlags);
       nodeUL.appendChild(nodeBtnAddNetwork);
       nodeDIV.appendChild(nodeUL);
-
       document.getElementById("emptyShell").appendChild(nodeDIV);
     }
   }
