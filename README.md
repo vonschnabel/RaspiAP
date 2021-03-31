@@ -24,9 +24,14 @@ sudo /bin/su -c "echo net.ipv4.ip_forward=1 >> /etc/sysctl.d/99-sysctl.conf"
 
 sudo reboot
 
+<wireguard device name> is the name of the wireguard config file without ".conf"
+
 sudo rfkill unblock 0
 sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 sudo iptables -t nat -A POSTROUTING -o wlan1 -j MASQUERADE
+sudo iptables -t nat -A POSTROUTING -o <wireguard device name> -j MASQUERADE
+sudo iptables -A FORWARD -i <wireguard device name> -o wlan1 -m state --state RELATED,ESTABLISHED -j ACCEPT
+sudo iptables -A FORWARD -i wlan1 -o <wireguard device name> -j ACCEPT
 sudo netfilter-persistent save
 
 sudo wget https://www.w3schools.com/w3css/4/w3.css
