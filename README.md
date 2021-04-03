@@ -34,10 +34,14 @@ sudo iptables -A FORWARD -i <wireguard device name> -o wlan1 -m state --state RE
 sudo iptables -A FORWARD -i wlan1 -o <wireguard device name> -j ACCEPT
 sudo netfilter-persistent save
 
-sudo wget https://www.w3schools.com/w3css/4/w3.css
+wget https://www.w3schools.com/w3css/4/w3.css
+wget http://code.jquery.com/jquery-1.11.3.min.js
+wget http://code.jquery.com/jquery-migrate-1.2.1.min.js
 git clone https://github.com/vonschnabel/RaspiAP.git
 
 sudo mv w3.css /var/www/html/
+sudo mv ./jquery-1.11.3.min.js /var/www/html/
+sudo mv ./jquery-migrate-1.2.1.min.js /var/www/html/
 sudo mv ./RaspiAP/090_raspap /etc/sudoers.d
 sudo mv ./RaspiAP/functions.php /var/www/html/
 sudo mv ./RaspiAP/hotspot.php /var/www/html/
