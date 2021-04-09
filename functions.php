@@ -357,12 +357,26 @@ function getStationDump(){
       $connectedtime = explode(':',$result[$i]);
       $connectedtime = explode(' ',$connectedtime[1]);
       $connectedtime = trim($connectedtime[0], "\t");
-//$connectedtime = 86399;
       $connectedtime = getElapsedTime($connectedtime);
       $row['connectedtime'] = $connectedtime;
     }
   }
   array_push($returnarray, $row );
+
+  $stats = getSystemConfig();
+  $dhcprange = $stats[12];
+
+  for($i=0; $i < count($returnarray); $i++) {
+    $mac = $returnarray[$i]['station'];
+    exec("/bin/ip neigh | grep $mac | grep $dhcprange", $resultip,$codeip);
+    $ip = explode(' ',$resultip[0]);
+    $ip = $ip[0];
+    unset($resultip, $codeip);
+
+    if(!empty($ip)){
+      $returnarray[$i]['ip'] = $ip;
+    }
+  }
 
   echo json_encode($returnarray);
 }

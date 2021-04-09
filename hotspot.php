@@ -330,8 +330,8 @@ input:checked + .slider:before {
     <div id="emptyShellClients" class="row"></div>
   </div>
 
-  <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
-  <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+  <script src="jquery-1.11.3.min.js"></script>
+  <script src="jquery-migrate-1.2.1.min.js"></script>
   <script>
   function openTab(evt, TabName) {
     var i, tabcontent, tablinks;
@@ -631,7 +631,7 @@ input:checked + .slider:before {
     }
 
     ConnectedClients();
-    await Sleep(200); // used to avoid the error that clients is not defined
+    await Sleep(300); // used to avoid the error that clients is not defined
     //console.log(clients.length);
     if(clients[0] == null){
       var numberOfElements = document.createTextNode("Connected Clients: 0");
@@ -646,6 +646,7 @@ input:checked + .slider:before {
         nodeDIV.className = "w3-panel w3-card";
         var nodeUL = document.createElement("UL");
         nodeUL.className = "w3-ul";
+        var nodeLiIP = document.createElement("LI");
         var nodeLiStation = document.createElement("LI");
         var nodeLiRXBytes = document.createElement("LI");
         var nodeLiTXBytes = document.createElement("LI");
@@ -654,7 +655,8 @@ input:checked + .slider:before {
         var nodeLiSignal = document.createElement("LI");
         var nodeLiConnectedTime = document.createElement("LI");
 
-        var stationnode = document.createTextNode("Station: " + clients[i]['station']);
+        var ipnode = document.createTextNode("IP: " + clients[i]['ip']);
+        var stationnode = document.createTextNode("MAC: " + clients[i]['station']);
         var rxbytesnode = document.createTextNode("Received Data: " + clients[i]['rxbytes']);
         var txbytesnode = document.createTextNode("Transmitted Data: " + clients[i]['txbytes']);
         var rxbitratenode = document.createTextNode("Receive Bitrate: " + clients[i]['rxbitrate']);
@@ -662,6 +664,7 @@ input:checked + .slider:before {
         var signalnode = document.createTextNode("Signal Strength: " + clients[i]['signal']);
         var connectedtimenode = document.createTextNode("Connected Time: " + clients[i]['connectedtime']);
 
+        nodeLiIP.appendChild(ipnode);
         nodeLiStation.appendChild(stationnode);
         nodeLiRXBytes.appendChild(rxbytesnode);
         nodeLiTXBytes.appendChild(txbytesnode);
@@ -670,6 +673,7 @@ input:checked + .slider:before {
         nodeLiSignal.appendChild(signalnode);
         nodeLiConnectedTime.appendChild(connectedtimenode);
 
+        nodeUL.appendChild(nodeLiIP);
         nodeUL.appendChild(nodeLiStation);
         nodeUL.appendChild(nodeLiRXBytes);
         nodeUL.appendChild(nodeLiTXBytes);
