@@ -39,6 +39,14 @@ www-data ALL=(ALL) NOPASSWD:/sbin/wpa_cli save_config
 
 www-data ALL=(ALL) NOPASSWD:/sbin/iw dev wlan0 station dump
 
-www-data ALL=(ALL) NOPASSWD:/bin/systemctl is-active wg-quick@peer1
-www-data ALL=(ALL) NOPASSWD:/bin/systemctl start wg-quick@peer1
-www-data ALL=(ALL) NOPASSWD:/bin/systemctl stop wg-quick@peer1
+www-data ALL=(ALL) NOPASSWD:/bin/systemctl is-active wg-quick@*
+www-data ALL=(ALL) NOPASSWD:/bin/systemctl start wg-quick@*
+www-data ALL=(ALL) NOPASSWD:/bin/systemctl stop wg-quick@*
+www-data ALL=(ALL) NOPASSWD:/bin/ls /etc/wireguard
+
+www-data ALL=(ALL) NOPASSWD:/sbin/iptables -t nat -A POSTROUTING -o * -j MASQUERADE
+www-data ALL=(ALL) NOPASSWD:/sbin/iptables -A FORWARD -i * -o wlan1 -j ACCEPT
+www-data ALL=(ALL) NOPASSWD:/sbin/iptables -A FORWARD -i wlan1 -o * -j ACCEPT
+www-data ALL=(ALL) NOPASSWD:/sbin/iptables -t nat -D POSTROUTING -o * -j MASQUERADE
+www-data ALL=(ALL) NOPASSWD:/sbin/iptables -D FORWARD -i * -o wlan1 -j ACCEPT
+www-data ALL=(ALL) NOPASSWD:/sbin/iptables -D FORWARD -i wlan1 -o * -j ACCEPT

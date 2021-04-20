@@ -12,17 +12,24 @@
 
   if(isset($_POST['btnVPN'])) {
     $connect = $_POST['connect'];
+    $vpnnetwork = $_POST['network'];
     if($connect == "true"){
-      exec('sudo /bin/systemctl start wg-quick@peer1');
+      exec('sudo /sbin/iptables -t nat -A POSTROUTING -o ' . $vpnnetwork . ' -j MASQUERADE');
+      exec('sudo /sbin/iptables -A FORWARD -i ' . $vpnnetwork . ' -o wlan1 -j ACCEPT');
+      exec('sudo /sbin/iptables -A FORWARD -i wlan1 -o ' . $vpnnetwork . ' -j ACCEPT');
+      exec('sudo /bin/systemctl start wg-quick@' . $vpnnetwork);
       echo json_encode("Wireguard started");
     }
     elseif($connect == "false"){
-      exec('sudo /bin/systemctl stop wg-quick@peer1');
-      echo json_encode("Wireguard stopped");
+      exec('sudo /bin/systemctl stop wg-quick@' . $vpnnetwork);
+      exec('sudo /sbin/iptables -t nat -D POSTROUTING -o ' . $vpnnetwork . ' -j MASQUERADE');
+      exec('sudo /sbin/iptables -D FORWARD -i ' . $vpnnetwork . ' -o wlan1 -j ACCEPT');
+      exec('sudo /sbin/iptables -D FORWARD -i wlan1 -o ' . $vpnnetwork . ' -j ACCEPT');
+//      echo json_encode("Wireguard stopped");
     }
   }
 
-  if(isset($_POST['VPNStatus'])) {
+/*  if(isset($_POST['VPNStatus'])) {
     $stat = getVPNStatus();
 //    echo json_encode($stat);
     if($stat == "active"){
@@ -31,10 +38,14 @@
     elseif($stat == "inactive"){
       echo json_encode(false);
     }
+  }*/
+
+  if(isset($_POST['VPNNetworkList'])) {
+    $networks = getVPNNetworkList();
+    echo json_encode($networks);
   }
 
   if(isset($_POST['btnScanWiFi'])) {
-      //echo "Scanning";
       $networks = wifiscan();
       print_r($networks);
   }
@@ -260,12 +271,25 @@ if(isset($_POST['btnChangeMACAddress'])) {
   exec('sudo /sbin/ip link set wlan1 up');
 }
 
-function getVPNStatus(){
+/*function getVPNStatus(){
   $vpnstatus = exec('sudo /bin/systemctl is-active wg-quick@peer1');
   return $vpnstatus;
+}*/
+
+function getVPNNetworkList(){
+  exec('sudo /bin/ls /etc/wireguard',$result,$code);
+  $vpnlist =  preg_grep('/\.conf/', $result);
+  $vpnlist = array_values($vpnlist);
+  for($i=0; $i < count($vpnlist); $i++) {
+    $vpnlist[$i] = explode('.',$vpnlist[$i]);
+    $vpnlist[$i] = $vpnlist[$i][0];
+    $row = exec('sudo /bin/systemctl is-active wg-quick@' . $vpnlist[$i]);
+    $vpnlist[$i] = array($vpnlist[$i],$row);
+  }
+  return $vpnlist;
 }
 
-function getVPNStatushtmltag(){
+/*function getVPNStatushtmltag(){
   $vpnstatus = exec('sudo /bin/systemctl is-active wg-quick@peer1');
   if($vpnstatus == "active"){
     $vpnstatus = "checked";
@@ -274,7 +298,7 @@ function getVPNStatushtmltag(){
     $vpnstatus = "";
   }
   return $vpnstatus;
-}
+}*/
 
 function getStationDump(){
   exec('sudo /sbin/iw dev wlan0 station dump',$result,$code);

@@ -318,11 +318,10 @@ input:checked + .slider:before {
     <div id="emptyShell" class="row"></div>
   </div>
   <div id="VPNConfig" class="tabcontent">
-    VPN is <span id="status">turned off</span>.
-    <label class="switch">
-      <input id="switchVPN" type="checkbox" <?=getVPNStatushtmltag()?>>
-      <span class="slider round"></span>
-    </label>
+<!--    Available VPN Networks -->
+    <div id="emptyShellVPN">
+    Available VPN Networks
+    </div>
   </div>
 
   <div id="ConnectedClients" class="tabcontent">
@@ -347,20 +346,110 @@ input:checked + .slider:before {
     evt.currentTarget.className += " active";
   }
 
-    // VPN Switch
-    var input = document.getElementById('switchVPN');
-    var outputtext = document.getElementById('status');
+  // VPN Switch
+/*  var input = document.getElementById('switchVPN');
+  var outputtext = document.getElementById('status');
 
-    input.addEventListener('change',function(){
-      if(this.checked) {
-        outputtext.innerHTML = "turned on";
-        StartVPN();
-      }
-      else {
-        outputtext.innerHTML = "turned off";
-        StopVPN();
-      }
+  input.addEventListener('change',function(){
+    if(this.checked) {
+      outputtext.innerHTML = "turned on";
+      StartVPN();
+    }
+    else {
+      outputtext.innerHTML = "turned off";
+      StopVPN();
+    }
+  });
+*/
+  // VPN Network List
+  function VPNNetworkList(){
+    $.ajax({
+      type: "POST",
+      url: 'functions.php',
+      data: {VPNNetworkList : true},
+      dataType: "json",
+      success: function(data){
+        VPNnetworks = data;
+        //console.log(VPNnetworks); //kann weg
+      },
     });
+  }
+
+  async function createVPNList(){
+    VPNNetworkList();
+    await Sleep(500);
+    var elementsvpn = document.getElementById("emptyShellVPN");
+
+    if(VPNnetworks.length == 0){
+      elementsvpn.innerHTML = "no VPN Networks found in /etc/wireguard";
+    }
+    else{
+    for(var i = 0; i < VPNnetworks.length; i++){
+      var nodeDIVVPN = document.createElement("DIV");
+      nodeDIVVPN.className = "w3-panel w3-card";
+      var nodeULVPN = document.createElement("UL");
+      nodeULVPN.className = "w3-ul";
+      var nodeLiVPN = document.createElement("LI");
+      var vpnnode = document.createTextNode("VPN Network: " + VPNnetworks[i][0] + " ");
+
+      var labelnode = document.createElement("LABEL");
+      labelnode.className = "switch";
+      var switchnode = document.createElement("INPUT");
+      switchnode.type = "checkbox";
+      switchnode.setAttribute("id", VPNnetworks[i][0]);
+      switchnode.setAttribute("name", "vpnnetwork");
+      if(VPNnetworks[i][1] == "active"){
+        switchnode.checked = true;
+      }
+      else{
+        switchnode.checked = false;
+      }
+      var spannode = document.createElement("SPAN");
+      spannode.className = "slider round";
+
+      labelnode.appendChild(switchnode);
+      labelnode.appendChild(spannode);
+      nodeLiVPN.appendChild(vpnnode);
+      nodeLiVPN.appendChild(labelnode);
+      nodeULVPN.appendChild(nodeLiVPN);
+      nodeDIVVPN.appendChild(nodeULVPN);
+      elementsvpn.appendChild(nodeDIVVPN);
+      //console.log(VPNnetworks[i]);
+    }
+    }
+  }
+
+  async function createEventListener(){
+    await Sleep(1500);
+    var vpnswitch = document.getElementsByName("vpnnetwork");
+    for (var i = 0; i < vpnswitch.length; i++) {
+      vpnswitch[i].addEventListener('change',function(){
+        if(this.checked) {
+          for (var j = 0; j < vpnswitch.length; j++) {
+            if(this.id == VPNnetworks[j][0]){
+              //console.log("ist gleich");
+            }
+            else{
+              //console.log(VPNnetworks[j][0]);
+              vpnswitch[j].checked = false;
+              StopVPN(VPNnetworks[j][0]);
+            }
+          }
+          StartVPN(this.id);
+          //console.log("checked");
+        }
+        else{
+          StopVPN(this.id);
+          //console.log(this.id);
+          //console.log("unchecked");
+          alert("VPN stopped");
+        }
+      });
+    }
+  }
+
+  createVPNList();
+  createEventListener();
 
   function toggleMACAddressChanger(){
     var togglebtn = document.getElementById("toggleMACAddressbtn");
@@ -473,11 +562,11 @@ input:checked + .slider:before {
     }
   }*/
 
-  function StartVPN(){
+  function StartVPN(network){
     $.ajax({
       type: "POST",
       url: 'functions.php',
-      data: {btnVPN : true, connect : true},
+      data: {btnVPN : true, connect : true, network : network},
       dataType: "json",
       success: function(data){
         alert(data);
@@ -486,14 +575,14 @@ input:checked + .slider:before {
     });
   }
 
-  function StopVPN(){
+  function StopVPN(network){
     $.ajax({
       type: "POST",
       url: 'functions.php',
-      data: {btnVPN : true, connect : false},
+      data: {btnVPN : true, connect : false, network : network},
       dataType: "json",
       success: function(data){
-        alert(data);
+        //alert(data);
         //location.reload();
       },
     });
