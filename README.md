@@ -3,6 +3,7 @@
 The WiFi drivers for additional WiFi device (wlan1) need to be installed beforehand. 
 The systems only supports wlan0 as hotspot delivering device. 
 The connection to other WiFi's is only possible with wlan1.
+To use Wireguard, please Install it beforehand.
 
 Installation:
 
@@ -39,7 +40,7 @@ wget http://code.jquery.com/jquery-1.11.3.min.js
 wget http://code.jquery.com/jquery-migrate-1.2.1.min.js
 git clone https://github.com/vonschnabel/RaspiAP.git
 
-sudo mv w3.css /var/www/html/
+sudo mv ./w3.css /var/www/html/
 sudo mv ./jquery-1.11.3.min.js /var/www/html/
 sudo mv ./jquery-migrate-1.2.1.min.js /var/www/html/
 sudo mv ./RaspiAP/090_raspap /etc/sudoers.d
