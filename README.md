@@ -46,8 +46,11 @@ sudo mv ./RaspiAP/090_raspap /etc/sudoers.d
 sudo mv ./RaspiAP/functions.php /var/www/html/
 sudo mv ./RaspiAP/hotspot.php /var/www/html/
 ```
-![Actual-Config](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/01-Actual-Config.PNG)
+![Actual-Config](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/01-Actual-Config-1.PNG)
+![Actual-Config](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/01-Actual-Config-2.PNG)
 ![Hotspot](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/02-Hotspot.PNG)
 ![Network-Settings](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/03-Network-Settings.PNG)
-![Connect-Wifi-1](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/04-Connect-Wifi-1.PNG)
-![Connect-Wifi-2](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/04-Connect-Wifi-2.PNG)
+![Connect-to-WIFI](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/04-Connect-to-WIFI-1.PNG)
+![Connect-to-WIFI](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/04-Connect-to-WIFI-2.PNG)
+![VPN-Config](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/05-VPN-Config.PNG)
+![Connected-Clients](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/06-Connected-Clients.PNG)
