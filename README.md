@@ -46,6 +46,7 @@ sudo mv ./jquery-migrate-1.2.1.min.js /var/www/html/
 sudo mv ./RaspiAP/090_raspap /etc/sudoers.d
 sudo mv ./RaspiAP/functions.php /var/www/html/
 sudo mv ./RaspiAP/hotspot.php /var/www/html/
+rm -rf RaspiAP
 ```
 ![Actual-Config](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/01-Actual-Config-1.PNG)
 ![Actual-Config](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/01-Actual-Config-2.PNG)
