@@ -11,7 +11,7 @@ echo "####################################";
 echo "";
 sudo apt update && sudo apt upgrade -y
 sudo DEBIAN_FRONTEND=noninteractive
-sudo apt install apache2 php php-mbstring libapache2-mod-php hostapd dnsmasq git netfilter-persistent iptables-persistent -y
+sudo apt install apache2 php php-mbstring libapache2-mod-php hostapd dnsmasq netfilter-persistent iptables-persistent -y
 
 sudo sed -i 's/Priv/#Priv/g' /lib/systemd/system/apache2.service
 
@@ -57,7 +57,6 @@ esac
 wget https://www.w3schools.com/w3css/4/w3.css
 wget http://code.jquery.com/jquery-1.11.3.min.js
 wget http://code.jquery.com/jquery-migrate-1.2.1.min.js
-git clone https://github.com/vonschnabel/RaspiAP.git
 
 sudo mv ./RaspiAP/disable-hostapd.service /etc/systemd/system
 sudo systemctl enable disable-hostapd.service
