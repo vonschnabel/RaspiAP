@@ -1,0 +1,14 @@
+[Unit]
+Description=Disable the Hostapd Service if Hotspot creation failed or credentials are forgotten. 
+ConditionPathExists=/boot/disable-hotspot
+Before=raspberrypi-net-mods.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/systemctl stop hostapd.service
+ExecStartPost=/bin/systemctl disable hostapd.service
+ExecStartPost=/bin/rm /boot/disable-hotspot
+
+[Install]
+WantedBy=multi-user.target
