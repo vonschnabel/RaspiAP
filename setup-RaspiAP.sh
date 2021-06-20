@@ -9,8 +9,9 @@ echo "Install RaspiAP";
 echo "";
 echo "####################################";
 echo "";
-sudo apt update && sudo apt upgrade -y
+echo "hallo"
 sudo DEBIAN_FRONTEND=noninteractive
+echo "welt"
 sudo apt install apache2 php php-mbstring libapache2-mod-php hostapd dnsmasq netfilter-persistent iptables-persistent -y
 
 sudo sed -i 's/Priv/#Priv/g' /lib/systemd/system/apache2.service
