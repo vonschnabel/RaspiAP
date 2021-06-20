@@ -8,6 +8,12 @@ Type=oneshot
 RemainAfterExit=yes
 ExecStart=/bin/systemctl stop hostapd.service
 ExecStartPost=/bin/systemctl disable hostapd.service
+
+ExecStartPost=/usr/bin/echo "hostname" > /home/ast/test.txt
+ExecStartPost=/usr/bin/echo "clientid" >> /home/ast/test.txt
+
+
+
 ExecStartPost=/bin/rm /boot/disable-hotspot
 
 [Install]
