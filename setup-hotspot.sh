@@ -99,3 +99,4 @@ echo "created $filepath";
 sudo /bin/systemctl stop hostapd.service
 sudo /bin/systemctl enable hostapd.service
 sudo /bin/systemctl start hostapd.service
+sudo reboot now
