@@ -49,6 +49,7 @@ echo "Passphrase: $pass";
 echo "Country Code: $countrycode";
 echo "Channel: $channel";
 echo "************************************";
+echo "";
 
 IFS='.';
 read -a strarr <<< "$hotspotip";
