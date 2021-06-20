@@ -68,6 +68,8 @@ wget http://code.jquery.com/jquery-migrate-1.2.1.min.js
 sudo mv ./RaspiAP/disable-hostapd.service /etc/systemd/system
 sudo systemctl enable disable-hostapd.service
 
+mv ./RaspiAP/setup-hotspot.sh ./
+chmod +x setup-hotspot.sh
 sudo mv ./w3.css /var/www/html/
 sudo mv ./jquery-1.11.3.min.js /var/www/html/
 sudo mv ./jquery-migrate-1.2.1.min.js /var/www/html/
