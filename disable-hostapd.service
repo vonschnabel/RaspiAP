@@ -9,10 +9,15 @@ RemainAfterExit=yes
 ExecStart=/bin/systemctl stop hostapd.service
 ExecStartPost=/bin/systemctl disable hostapd.service
 
-ExecStartPost=/usr/bin/echo "hostname" > /home/ast/test.txt
-ExecStartPost=/usr/bin/echo "clientid" >> /home/ast/test.txt
-
-
+ExecStartPost=/usr/bin/bash -c '/usr/bin/echo "hostname" > /etc/dhcpcd.conf'
+ExecStartPost=/usr/bin/bash -c '/usr/bin/echo "clientid" >> /etc/dhcpcd.conf'
+ExecStartPost=/usr/bin/bash -c '/usr/bin/echo "persistent" >> /etc/dhcpcd.conf'
+ExecStartPost=/usr/bin/bash -c '/usr/bin/echo "option rapid_commit" >> /etc/dhcpcd.conf'
+ExecStartPost=/usr/bin/bash -c '/usr/bin/echo "option domain_name_servers, domain_name, domain_search, host_name" >> /etc/dhcpcd.conf'
+ExecStartPost=/usr/bin/bash -c '/usr/bin/echo "option classless_static_routes" >> /etc/dhcpcd.conf'
+ExecStartPost=/usr/bin/bash -c '/usr/bin/echo "require dhcp_server_identifier" >> /etc/dhcpcd.conf'
+ExecStartPost=/usr/bin/bash -c '/usr/bin/echo "slaac private" >> /etc/dhcpcd.conf'
+ExecStartPost=/usr/bin/bash -c '/usr/bin/echo "nohook lookup-hostname" >> /etc/dhcpcd.conf'
 
 ExecStartPost=/bin/rm /boot/disable-hotspot
 
