@@ -9,6 +9,15 @@ echo "Install RaspiAP";
 echo "";
 echo "####################################";
 echo "";
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )/RaspiAP"
+if [ -d "$DIR" ]; then
+  echo "Directory RaspiAP found. Proceeding with installation..."
+else
+  echo "Directory RaspiAP not found. Cloning from Github..."
+  git clone https://github.com/vonschnabel/RaspiAP.git
+fi
+
 sudo apt install apache2 php php-mbstring libapache2-mod-php hostapd dnsmasq netfilter-persistent iptables-persistent -y
 
 sudo sed -i 's/Priv/#Priv/g' /lib/systemd/system/apache2.service
