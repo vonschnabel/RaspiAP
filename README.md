@@ -8,6 +8,7 @@ The connection to other WiFi's is only possible with wlan1.
 Installation:
 
 ``` 
+sudo apt update && sudo apt upgrade -y
 sudo apt install git
 git clone https://github.com/vonschnabel/RaspiAP.git
 
