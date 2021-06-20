@@ -15,8 +15,8 @@ Installation:
 sudo apt update && sudo apt upgrade -y
 sudo apt install git
 git clone https://github.com/vonschnabel/RaspiAP.git
-
-
+mv ./RaspiAP/setup-RaspiAP.sh ./
+chmod +x ./setup-RaspiAP.sh
 
 
 
