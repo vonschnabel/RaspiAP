@@ -40,6 +40,9 @@ wget http://code.jquery.com/jquery-1.11.3.min.js
 wget http://code.jquery.com/jquery-migrate-1.2.1.min.js
 git clone https://github.com/vonschnabel/RaspiAP.git
 
+sudo mv ./disable-hostapd.service /etc/systemd/system
+sudo systemctl enable disable-hostapd.service
+
 sudo mv ./w3.css /var/www/html/
 sudo mv ./jquery-1.11.3.min.js /var/www/html/
 sudo mv ./jquery-migrate-1.2.1.min.js /var/www/html/
