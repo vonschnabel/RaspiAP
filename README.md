@@ -3,11 +3,29 @@
 The WiFi drivers for additional WiFi device (wlan1) need to be installed beforehand. 
 The systems only supports wlan0 as hotspot delivering device. 
 The connection to other WiFi's is only possible with wlan1.
-To use Wireguard, please Install it beforehand and copy your config to /etc/wireguard.
+#To use Wireguard, please Install it beforehand and copy your config to /etc/wireguard.
 
 Installation:
 
 ``` 
+sudo apt install git
+git clone https://github.com/vonschnabel/RaspiAP.git
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 sudo apt update && sudo apt upgrade -y
 
 sudo DEBIAN_FRONTEND=noninteractive
