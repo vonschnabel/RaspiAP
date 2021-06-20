@@ -3,7 +3,11 @@
 The WiFi drivers for additional WiFi device (wlan1) need to be installed beforehand. 
 The systems only supports wlan0 as hotspot delivering device. 
 The connection to other WiFi's is only possible with wlan1.
-#To use Wireguard, please Install it beforehand and copy your config to /etc/wireguard.
+To use Wireguard, confirm to install it when executing the setup script. Wireguard configs need to be placed in the folder /etc/wireguard.
+
+Reset the Hotspot:
+To disable the Hotspot, insert a file named "disable-hotspot" into the /boot partition. The Hotspot service hostapd, will be disabled.   
+
 
 Installation:
 
