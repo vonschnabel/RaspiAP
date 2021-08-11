@@ -71,15 +71,22 @@ sudo systemctl enable disable-hostapd.service
 mv ./RaspiAP/setup-hotspot.sh ./
 chmod +x setup-hotspot.sh
 sudo mv ./w3.css /var/www/html/
+sudo chown www-data:www-data /var/www/html/w3.css
 sudo mv ./jquery-1.11.3.min.js /var/www/html/
-sudo mv ./jquery-migrate-1.2.1.min.js /var/www/html/
+sudo chown www-data:www-data /var/www/html/jquery-1.11.3.min.js
+sudo mv ./jquery-migrate-1.2.1.min.js /var/www/html/jquery-migrate-1.2.1.min.js
+sudo chown www-data:www-data /var/www/html/jquery-migrate-1.2.1.min.js
 sudo mv ./RaspiAP/090_raspap /etc/sudoers.d
 sudo chown root:root /etc/sudoers.d/090_raspap
 sudo chmod 440 /etc/sudoers.d/090_raspap
+
 sudo mv ./RaspiAP/functions.php /var/www/html/
+sudo chown www-data:www-data /var/www/html/functions.php
 sudo mv ./RaspiAP/hotspot.php /var/www/html/
+sudo chown www-data:www-data /var/www/html/hotspot.php
 rm -rf RaspiAP
 
+sudo systemctl status apache2.service
 
 echo ""
 echo "####################################"
