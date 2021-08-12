@@ -58,6 +58,10 @@ case ${answer:0:1} in
     *)
         echo 'install skipped'
 	echo ""
+	sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+	sudo iptables -t nat -A POSTROUTING -o wlan1 -j MASQUERADE
+	sudo netfilter-persistent save
+	echo ""
         ;;
 esac
 
