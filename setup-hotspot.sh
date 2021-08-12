@@ -9,7 +9,7 @@ echo "Setup hostapd as WPA2 Hotspot";
 echo "";
 echo "####################################";
 echo "";
-echo "insert Hotspot IP:";
+echo "insert Hotspot IP (this device):";
 echo "/24 Network will be used";
 echo "e.g. 192.168.1.1";
 read hotspotip;
