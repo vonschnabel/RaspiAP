@@ -637,6 +637,7 @@ function addNetwork($ssid,$psk,$hidden){
 	else{
 		exec("sudo /sbin/wpa_cli set_network $resultnetwork[1] key_mgmt WPA-PSK",$result,$code);
 	}
+	exec("sudo /sbin/wpa_cli enable_network $resultnetwork[1]",$result,$code);
         exec("sudo /sbin/wpa_cli save_config",$result,$code);
 }
 //addNetwork("beitenu","aaaaaaaaaaaaaa",true);
