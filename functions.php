@@ -1,12 +1,8 @@
 <?php
   if(isset($_POST['btnReboot'])) {
-      $message = "System wir neu gestartet";
-      echo "<script type='text/javascript'>alert('$message');</script>";
       exec('sudo /sbin/reboot');
   }
   if(isset($_POST['btnShutdown'])) {
-      $message = "System wird heruntergefahren";
-      echo "<script type='text/javascript'>alert('$message');</script>";
       exec('sudo /sbin/shutdown -h now');
   }
 
@@ -25,7 +21,7 @@
       exec('sudo /sbin/iptables -t nat -D POSTROUTING -o ' . $vpnnetwork . ' -j MASQUERADE');
       exec('sudo /sbin/iptables -D FORWARD -i ' . $vpnnetwork . ' -o wlan1 -j ACCEPT');
       exec('sudo /sbin/iptables -D FORWARD -i wlan1 -o ' . $vpnnetwork . ' -j ACCEPT');
-//      echo json_encode("Wireguard stopped");
+      echo json_encode("Wireguard was stopped");
     }
   }
 
@@ -50,7 +46,6 @@
       print_r($networks);
   }
 
-  //////////////>>><<<hier in eine Funktion kapseln
   $stats = getSystemConfig();
   $dhcprangestart = $stats[0];
   $dhcprangeend = $stats[1];
@@ -95,16 +90,12 @@
     if($channel == ""){
       $channel = $stats[10];
     }
-    //echo "$ssid<br>";
-    //echo "$password<br>";
-    //echo "$countrycode<br>";
-    //echo "$hwmode<br>";
-    //echo "$channel<br><br>";
     writeHostAPDConf($ssid, $password, $countrycode, $hwmode, $channel);
     exec('sudo /bin/systemctl stop hostapd.service');
     exec('sudo /bin/cp /var/www/html/tmp/hostapd.conf /etc/hostapd/hostapd.conf');
     exec('sudo /bin/systemctl start hostapd.service');
     echo "hostapd Conf erstellt";
+    header("Location: http://$_SERVER[HTTP_HOST]/hotspot.php");
   }
 
   if(isset($_POST['btnNetwork'])) {
@@ -137,12 +128,6 @@
     if($leaseTime == ""){
       $leaseTime = $stats[2];
     }
-    //echo "$IPwlan0<br>";
-    //echo "$DNSwlan0<br>";
-    //echo "$DHCPStartIP<br>";
-    //echo "$DHCPEndIP<br>";
-    //echo "$DNSClients<br>";
-    //echo "$leaseTime<br><br>";
     writeDHCPCDConf($IPwlan0, $DNSwlan0);
     writeDNSMasqConf($IPwlan0, $DHCPStartIP, $DHCPEndIP, $leaseTime, $DNSClients);
     exec('sudo /bin/systemctl stop hostapd.service');
@@ -155,6 +140,7 @@
     exec('sudo /bin/systemctl start dnsmasq.service');
     echo "dnsmasq conf erstellt<br>";
     echo "dhcpcd conf erstellt";
+    header("Location: http://$_SERVER[HTTP_HOST]/hotspot.php");
   }
 
 

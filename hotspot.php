@@ -184,7 +184,7 @@ input:checked + .slider:before {
 
   <div id="Hotspot" class="tabcontent">
     <h3>Hotspot Config</h3>
-    <form method="post">
+    <form method="post"">
       <label>SSID
       <input name="ssid" type="text" placeholder="<?=$ssidwlan0?>">
       </label>
@@ -216,7 +216,7 @@ input:checked + .slider:before {
       </label>
       <br><br>
 
-      <button name="btnHotspot" value="1">create Hotspot</button>
+      <button name="btnHotspot" onclick="showMessage('Hotspot created')" value="submit">create Hotspot</button>
     </form>
   </div>
 
@@ -259,7 +259,7 @@ input:checked + .slider:before {
           <option value="24h">24h</option>
         </select>
       <br><br>
-      <button name="btnNetwork" value="1">Change Network Settings</button>
+      <button name="btnNetwork" onclick="showMessage('Network settings changed')" value="submit">Change Network Settings</button>
     </form>
   </div>
 
@@ -305,10 +305,8 @@ input:checked + .slider:before {
         <li>FREQENCY: <?=getWLAN1_Signal()[3]?> MHz</li>
       </ul>
     </div>
-    <form method="post">
-      <button name="btnReboot" value="1">System Reboot</button>
-      <button name="btnShutdown" value="1">System Shutdown</button>
-    </form>
+    <button onclick="rebootSystem()">System Reboot</button>
+    <button onclick="shutdownSystem()">System Shutdown</button>
   </div>
 
   <div id="ConnectWifi" class="tabcontent">
@@ -344,6 +342,10 @@ input:checked + .slider:before {
     }
     document.getElementById(TabName).style.display = "block";
     evt.currentTarget.className += " active";
+  }
+
+  function showMessage(text){
+    alert(text);
   }
 
   // VPN Switch
@@ -512,6 +514,32 @@ input:checked + .slider:before {
   function Sleep(milliseconds) {
     return new Promise(resolve => setTimeout(resolve, milliseconds));
   }
+
+  function rebootSystem(){
+    $.ajax({
+      type: "POST",
+      url: 'functions.php',
+      data: {btnReboot : true},
+      dataType: "json",
+      success: function(data){
+      },
+    });
+    alert("System is rebooting now");
+    location.reload();
+  }
+
+  function shutdownSystem(){
+    $.ajax({
+      type: "POST",
+      url: 'functions.php',
+      data: {btnShutdown : true},
+      dataType: "json",
+      success: function(data){
+      },
+    });
+    alert("System is shutting down now");
+  }
+
 
   function AddWifiNetwork(ssid,hidden){
     if(ssid === false){
