@@ -90,12 +90,11 @@
     if($channel == ""){
       $channel = $stats[10];
     }
+
     writeHostAPDConf($ssid, $password, $countrycode, $hwmode, $channel);
     exec('sudo /bin/systemctl stop hostapd.service');
     exec('sudo /bin/cp /var/www/html/tmp/hostapd.conf /etc/hostapd/hostapd.conf');
     exec('sudo /bin/systemctl start hostapd.service');
-    echo "hostapd Conf erstellt";
-    header("Location: http://$_SERVER[HTTP_HOST]/hotspot.php");
   }
 
   if(isset($_POST['btnNetwork'])) {
@@ -138,9 +137,6 @@
     exec('sudo /bin/systemctl start hostapd.service');
     exec('sudo /bin/systemctl start dhcpcd.service');
     exec('sudo /bin/systemctl start dnsmasq.service');
-    echo "dnsmasq conf erstellt<br>";
-    echo "dhcpcd conf erstellt";
-    header("Location: http://$_SERVER[HTTP_HOST]/hotspot.php");
   }
 
 

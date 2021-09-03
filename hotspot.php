@@ -184,7 +184,7 @@ input:checked + .slider:before {
 
   <div id="Hotspot" class="tabcontent">
     <h3>Hotspot Config</h3>
-    <form method="post"">
+    <form method="post" enctype="multipart/form-data" id="HotspotForm">
       <label>SSID
       <input name="ssid" type="text" placeholder="<?=$ssidwlan0?>">
       </label>
@@ -216,13 +216,13 @@ input:checked + .slider:before {
       </label>
       <br><br>
 
-      <button name="btnHotspot" onclick="showMessage('Hotspot created')" value="submit">create Hotspot</button>
+      <input type="submit" value="Submit" id="btnHotspot"/>
     </form>
   </div>
 
   <div id="Network" class="tabcontent">
     <h3>Network config</h3>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data" id="NetworkForm">
       <label>Static IP Interface wlan0
       <input name="staticIP" type="text" placeholder="<?=$ipwlan0?>">
       </label>
@@ -259,7 +259,7 @@ input:checked + .slider:before {
           <option value="24h">24h</option>
         </select>
       <br><br>
-      <button name="btnNetwork" onclick="showMessage('Network settings changed')" value="submit">Change Network Settings</button>
+      <input type="submit" value="Submit" id="btnNetwork"/>
     </form>
   </div>
 
@@ -879,6 +879,64 @@ input:checked + .slider:before {
       document.getElementById("emptyShell").appendChild(nodeDIV);
     }
   }
+
+
+
+
+
+  document.getElementById('HotspotForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    var formData = new FormData(e.target);
+    var formJSON = Object.fromEntries(formData.entries());
+    formData.append("btnHotspot", "true");
+
+    $.ajax({
+      type: "POST",
+      enctype: 'multipart/form-data',
+      url: 'functions.php',
+      data: formData,
+      contentType: 'multipart/form-data',
+      processData: false,
+      contentType: false,
+      cache: false,
+      timeout: 800000,
+      success: function(data){
+      //  result = data;
+      //  console.log(result);
+      },
+    });
+
+    showMessage('Hotspot created')
+    location.reload();
+  });
+
+  document.getElementById('NetworkForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    var formData = new FormData(e.target);
+    var formJSON = Object.fromEntries(formData.entries());
+    formData.append("btnNetwork", "true");
+
+    $.ajax({
+      type: "POST",
+      enctype: 'multipart/form-data',
+      url: 'functions.php',
+      data: formData,
+      contentType: 'multipart/form-data',
+      processData: false,
+      contentType: false,
+      cache: false,
+      timeout: 800000,
+      success: function(data){
+      //  result = data;
+      //  console.log(result);
+      },
+    });
+
+    showMessage('Network settings changed')
+    location.reload();
+  });
 
 
 </script>
