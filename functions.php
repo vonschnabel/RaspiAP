@@ -893,7 +893,7 @@ function writeHostAPDConf($ssid, $psk, $country_code, $hw_mode, $channel){
 	fwrite($hostapd_file, "wpa=2".PHP_EOL);
 	fwrite($hostapd_file, "wpa_passphrase=$psk".PHP_EOL);
 	fwrite($hostapd_file, "wpa_key_mgmt=WPA-PSK".PHP_EOL);
-	fwrite($hostapd_file, "wpa_pairwise=TKIP".PHP_EOL);
+	fwrite($hostapd_file, "wpa_pairwise=CCMP".PHP_EOL);
 	fwrite($hostapd_file, "rsn_pairwise=CCMP".PHP_EOL);
 	fclose($hostapd_file);
 }
