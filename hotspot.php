@@ -226,14 +226,8 @@ input:checked + .slider:before {
       <label>Static IP Interface wlan0
       <input name="staticIP" type="text" placeholder="<?=$ipwlan0?>">
       </label>
-      <br><br>
 
-      <label>Static DNS Servers for local Device
-      <input name="dnswlan0" type="text" placeholder="<?=$wlan0dns?>" value=""
-      </label>
-      <br><br>
-
-      <p>DHCP Settings</p>
+      <p><b>DHCP Settings</b></p>
       <label>First IP
       <input name="rangeStart" type="text" placeholder="<?=$dhcprangestart?>">
       </label>
@@ -278,13 +272,13 @@ input:checked + .slider:before {
       <ul class="w3-ul">
         <li><h3>eth0</h3></li>
         <li>IP: <?=$ipeth0?></li>
+        <li>Gateway: <?=$gateeth0?></li>
       </ul>
     </div>
     <div class="w3-panel w3-card-2">
       <ul class="w3-ul">
         <li><h3>wlan0</h3></li>
         <li>IP: <?=$ipwlan0?> /24</li>
-        <li>DNS Static: <?=$wlan0dns?></li>
         <li>SSID: <?=$ssidwlan0?></li>
         <li>DHCP Range: <?="$dhcprange$dhcprangestart - $dhcprangeend"?></li>
         <li>DNS Servers (DHCP): <?=$dhcpdns?></li>
@@ -299,6 +293,7 @@ input:checked + .slider:before {
 	<li>Status: <?=getWPAState()?></li>
 	<li>SSID: <?=getWLAN1_SSID()?></li>
 	<li>IP: <?=getWLAN1_IP()?> /24</li>
+        <li>Gateway: <?=$gatewlan1?></li>
 	<li>MAC: <?=getMACAddress()?></li>
         <li>SIGNAL: <?=getWLAN1_Signal()[0]?></li>
         <li>SPEED: <?=getWLAN1_Signal()[1]?> Mb/s</li>
@@ -700,7 +695,7 @@ input:checked + .slider:before {
     }
 
     ConfiguredNetworks();
-    await Sleep(200); // used to avoid the error that networks is not defined
+    await Sleep(400); // used to avoid the error that networks is not defined
     var numberOfElements = document.createTextNode("existing Networks: " + networks.length);
     document.getElementById("emptyShell").appendChild(numberOfElements);
     for(var i = 0; i < networks.length; i++){

@@ -60,7 +60,8 @@
   $channelwlan0 = $stats[10];
   $dhcpdns = $stats[11];
   $dhcprange = $stats[12];
-  $wlan0dns = $stats[13];
+  $gateeth0 = $stats[13];
+  $gatewlan1 = $stats[14];
 
   if(isset($_POST['btnHotspot'])) {
     $ssid = $_POST['ssid'];
@@ -99,7 +100,6 @@
 
   if(isset($_POST['btnNetwork'])) {
     $IPwlan0 = $_POST['staticIP'];
-    $DNSwlan0 = $_POST['dnswlan0'];
     $DHCPStartIP = $_POST['rangeStart'];
     $DHCPEndIP = $_POST['rangeEnd'];
     $DNSClients = $_POST['dnsClients'];
@@ -108,12 +108,6 @@
     $stats = getSystemConfig(); // load the previous Config if a Value is not set
     if($IPwlan0 == ""){
       $IPwlan0 = $stats[6];
-    }
-    if($DNSwlan0 == ""){
-      $DNSwlan0 = $stats[13];
-    }
-    elseif($DNSwlan0 == "-"){
-      $DNSwlan0 = "";
     }
     if($DHCPStartIP == ""){
       $DHCPStartIP = $stats[0];
@@ -127,7 +121,7 @@
     if($leaseTime == ""){
       $leaseTime = $stats[2];
     }
-    writeDHCPCDConf($IPwlan0, $DNSwlan0);
+    writeDHCPCDConf($IPwlan0);
     writeDNSMasqConf($IPwlan0, $DHCPStartIP, $DHCPEndIP, $leaseTime, $DNSClients);
     exec('sudo /bin/systemctl stop hostapd.service');
     exec('sudo /bin/systemctl stop dnsmasq.service');
@@ -420,23 +414,6 @@ function getSystemConfig(){
             fclose($file);
         }
 
-        if ($file = fopen("/etc/dhcpcd.conf", "r")) {
-	    $wlan0dns = "-not set-";
-	    while(!feof($file)) {
-                $line = fgets($file);
-                if(strpos($line,'static domain_name_server=') !== false){
-			if(strpos($line,'#') !== false){
-				//do nothing
-			}
-			else{
-				$result = explode('=',$line);
-				$wlan0dns = $result[1];
-			}
-		}
-	    }
-	    fclose($file);
-        }
-
         //if ($file = fopen("/etc/dnsmasq.conf", "r")) {
         if ($file = fopen("/etc/dnsmasq.d/090_raspap.conf", "r")) {
             $dhcprange = "-not set-";
@@ -485,7 +462,10 @@ function getSystemConfig(){
 	$tempvar = explode('.',$tempvar);
 	$dhcprange = $tempvar[0] .".". $tempvar[1] .".". $tempvar[2] .".";
 
-	return array($dhcprangestart, $dhcprangeend, $dhcpleasetime, $ssidwlan0, $pskwlan0, $ipeth0, $ipwlan0, $ipwlan1, $ssidwlan1, $countrycodewlan0, $channelwlan0, $dhcpdns, $dhcprange, $wlan0dns);
+	$gateeth0 = exec("ip route | grep default | grep eth0 | grep -oP '(?<=via\s)\d+(\.\d+){3}'");
+	$gatewlan1 = exec("ip route | grep default | grep wlan1 | grep -oP '(?<=via\s)\d+(\.\d+){3}'");
+
+	return array($dhcprangestart, $dhcprangeend, $dhcpleasetime, $ssidwlan0, $pskwlan0, $ipeth0, $ipwlan0, $ipwlan1, $ssidwlan1, $countrycodewlan0, $channelwlan0, $dhcpdns, $dhcprange, $gateeth0, $gatewlan1);
 
 }
 
@@ -640,7 +620,7 @@ function addNetwork($ssid,$psk,$hidden){
 //removeNetwork(6);
 //echo "hallo";
 
-function writeDHCPCDConf($staticIP, $staticDNS){
+function writeDHCPCDConf($staticIP){
 	$interface = "wlan0";
 	$staticIPMask = "/24";
 
@@ -659,12 +639,6 @@ function writeDHCPCDConf($staticIP, $staticDNS){
 	fwrite($dhcpcd_file, "interface $interface".PHP_EOL);
 	fwrite($dhcpcd_file, "\tstatic ip_address=$staticIP$staticIPMask".PHP_EOL);
 	fwrite($dhcpcd_file, "\tnohook wpa_supplicant".PHP_EOL);
-	if (strlen($staticDNS) == 0){
-		//echo "dhcpcd_file";
-	}
-	else {
-		fwrite($dhcpcd_file, "\tstatic domain_name_server=$staticDNS".PHP_EOL);
-	}
 	fclose($dhcpcd_file);
 }
 
@@ -893,7 +867,7 @@ function writeHostAPDConf($ssid, $psk, $country_code, $hw_mode, $channel){
 	fwrite($hostapd_file, "wpa=2".PHP_EOL);
 	fwrite($hostapd_file, "wpa_passphrase=$psk".PHP_EOL);
 	fwrite($hostapd_file, "wpa_key_mgmt=WPA-PSK".PHP_EOL);
-	fwrite($hostapd_file, "wpa_pairwise=CCMP".PHP_EOL);
+	fwrite($hostapd_file, "wpa_pairwise=TKIP".PHP_EOL);
 	fwrite($hostapd_file, "rsn_pairwise=CCMP".PHP_EOL);
 	fclose($hostapd_file);
 }
