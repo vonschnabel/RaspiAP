@@ -313,7 +313,10 @@ input:checked + .slider:before {
   <div id="VPNConfig" class="tabcontent">
 <!--    Available VPN Networks -->
     <div id="emptyShellVPN">
-    Available VPN Networks
+      Available VPN Networks
+    </div>
+      TOR Routing
+    <div id="emptyShellTOR">
     </div>
   </div>
 
@@ -416,6 +419,47 @@ input:checked + .slider:before {
     }
   }
 
+  function CheckTORInstalled(){
+    $.ajax({
+      type: "POST",
+      url: 'functions.php',
+      data: {checkTORStatus : true},
+      dataType: "json",
+      success: function(data){
+        TORstatus = data;
+        //console.log(TORstatus); //kann weg
+      },
+    });
+  }
+
+  async function createTORSwitch(){
+    CheckTORInstalled();
+    await Sleep(500);
+    var elementstor = document.getElementById("emptyShellTOR");
+
+    if(TORstatus == false){
+      elementstor.innerHTML = "TOR is not installed";
+    }
+    else{
+      var labelnode = document.createElement("LABEL");
+      labelnode.className = "switch";
+      var switchnode = document.createElement("INPUT");
+      switchnode.type = "checkbox";
+      switchnode.setAttribute("name", "tornetwork");
+      if(TORstatus == "active"){
+        switchnode.checked = true;
+      }
+      else{
+        switchnode.checked = false;
+      }
+      var spannode = document.createElement("SPAN");
+      spannode.className = "slider round";
+      labelnode.appendChild(switchnode);
+      labelnode.appendChild(spannode);
+      elementstor.appendChild(labelnode);
+    }
+  }
+
   async function createEventListener(){
     await Sleep(1500);
     var vpnswitch = document.getElementsByName("vpnnetwork");
@@ -424,28 +468,32 @@ input:checked + .slider:before {
         if(this.checked) {
           for (var j = 0; j < vpnswitch.length; j++) {
             if(this.id == VPNnetworks[j][0]){
-              //console.log("ist gleich");
             }
             else{
-              //console.log(VPNnetworks[j][0]);
               vpnswitch[j].checked = false;
               StopVPN(VPNnetworks[j][0]);
             }
           }
           StartVPN(this.id);
-          //console.log("checked");
         }
         else{
           StopVPN(this.id);
-          //console.log(this.id);
-          //console.log("unchecked");
-          alert("VPN stopped");
         }
       });
     }
+    var torswitch = document.getElementsByName("tornetwork");
+    torswitch[0].addEventListener('change',function(){
+      if(this.checked) {
+        StartTOR();
+      }
+      else{
+        StopTOR();
+      }
+    });
   }
 
   createVPNList();
+  createTORSwitch();
   createEventListener();
 
   function toggleMACAddressChanger(){
@@ -605,11 +653,38 @@ input:checked + .slider:before {
       data: {btnVPN : true, connect : false, network : network},
       dataType: "json",
       success: function(data){
-        //alert(data);
+        alert(data);
         //location.reload();
       },
     });
   }
+
+  function StartTOR(network){
+    $.ajax({
+      type: "POST",
+      url: 'functions.php',
+      data: {btnTOR : true, connect : true},
+      dataType: "json",
+      success: function(data){
+        alert(data);
+        //location.reload();
+      },
+    });
+  }
+
+  function StopTOR(network){
+    $.ajax({
+      type: "POST",
+      url: 'functions.php',
+      data: {btnTOR : true, connect : false},
+      dataType: "json",
+      success: function(data){
+        alert(data);
+        //location.reload();
+      },
+    });
+  }
+
 
   function RemoveNetwork(id){
     $.ajax({

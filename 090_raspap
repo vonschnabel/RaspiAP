@@ -44,9 +44,22 @@ www-data ALL=(ALL) NOPASSWD:/bin/systemctl start wg-quick@*
 www-data ALL=(ALL) NOPASSWD:/bin/systemctl stop wg-quick@*
 www-data ALL=(ALL) NOPASSWD:/bin/ls /etc/wireguard
 
+www-data ALL=(ALL) NOPASSWD:/bin/systemctl is-active tor.service
+www-data ALL=(ALL) NOPASSWD:/bin/systemctl start tor.service
+www-data ALL=(ALL) NOPASSWD:/bin/systemctl stop tor.service
+
 www-data ALL=(ALL) NOPASSWD:/sbin/iptables -t nat -A POSTROUTING -o * -j MASQUERADE
 www-data ALL=(ALL) NOPASSWD:/sbin/iptables -A FORWARD -i * -o wlan1 -j ACCEPT
 www-data ALL=(ALL) NOPASSWD:/sbin/iptables -A FORWARD -i wlan1 -o * -j ACCEPT
 www-data ALL=(ALL) NOPASSWD:/sbin/iptables -t nat -D POSTROUTING -o * -j MASQUERADE
 www-data ALL=(ALL) NOPASSWD:/sbin/iptables -D FORWARD -i * -o wlan1 -j ACCEPT
 www-data ALL=(ALL) NOPASSWD:/sbin/iptables -D FORWARD -i wlan1 -o * -j ACCEPT
+
+www-data ALL=(ALL) NOPASSWD:/sbin/iptables -t nat -A PREROUTING -i wlan0 -p tcp --dport 22 -j REDIRECT --to-ports 22
+www-data ALL=(ALL) NOPASSWD:/sbin/iptables -t nat -A PREROUTING -i wlan0 -p udp --dport 53 -j REDIRECT --to-ports 53
+www-data ALL=(ALL) NOPASSWD:/sbin/iptables -t nat -A PREROUTING -i wlan0 -p tcp -d * --dport 80 -j REDIRECT --to-ports 80
+www-data ALL=(ALL) NOPASSWD:/sbin/iptables -t nat -A PREROUTING -i wlan0 -p tcp --syn -j REDIRECT --to-ports 9040
+www-data ALL=(ALL) NOPASSWD:/sbin/iptables -t nat -D PREROUTING -i wlan0 -p tcp --dport 22 -j REDIRECT --to-ports 22
+www-data ALL=(ALL) NOPASSWD:/sbin/iptables -t nat -D PREROUTING -i wlan0 -p udp --dport 53 -j REDIRECT --to-ports 53
+www-data ALL=(ALL) NOPASSWD:/sbin/iptables -t nat -D PREROUTING -i wlan0 -p tcp -d * --dport 80 -j REDIRECT --to-ports 80
+www-data ALL=(ALL) NOPASSWD:/sbin/iptables -t nat -D PREROUTING -i wlan0 -p tcp --syn -j REDIRECT --to-ports 9040

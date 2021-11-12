@@ -21,7 +21,7 @@
       exec('sudo /sbin/iptables -t nat -D POSTROUTING -o ' . $vpnnetwork . ' -j MASQUERADE');
       exec('sudo /sbin/iptables -D FORWARD -i ' . $vpnnetwork . ' -o wlan1 -j ACCEPT');
       exec('sudo /sbin/iptables -D FORWARD -i wlan1 -o ' . $vpnnetwork . ' -j ACCEPT');
-      echo json_encode("Wireguard was stopped");
+      echo json_encode("Wireguard stopped");
     }
   }
 
@@ -39,6 +39,17 @@
   if(isset($_POST['VPNNetworkList'])) {
     $networks = getVPNNetworkList();
     echo json_encode($networks);
+  }
+
+  if(isset($_POST['checkTORStatus'])) {
+    $torconf = '/etc/tor/torrc';
+    if (file_exists($torconf)) {
+      $torstatus = exec('sudo /bin/systemctl is-active tor.service');
+      echo json_encode($torstatus);
+    }
+    else {
+      echo json_encode(false);
+    }
   }
 
   if(isset($_POST['btnScanWiFi'])) {
@@ -62,6 +73,26 @@
   $dhcprange = $stats[12];
   $gateeth0 = $stats[13];
   $gatewlan1 = $stats[14];
+
+  if(isset($_POST['btnTOR'])) {
+    $connect = $_POST['connect'];
+    if($connect == "true"){
+      exec('sudo /sbin/iptables -t nat -A PREROUTING -i wlan0 -p tcp --dport 22 -j REDIRECT --to-ports 22');
+      exec('sudo /sbin/iptables -t nat -A PREROUTING -i wlan0 -p udp --dport 53 -j REDIRECT --to-ports 53');
+      exec('sudo /sbin/iptables -t nat -A PREROUTING -i wlan0 -p tcp -d  ' . $ipwlan0 . '  --dport 80 -j REDIRECT --to-ports 80');
+      exec('sudo /sbin/iptables -t nat -A PREROUTING -i wlan0 -p tcp --syn -j REDIRECT --to-ports 9040');
+      exec('sudo /bin/systemctl start tor.service');
+      echo json_encode("TOR Service started");
+    }
+    elseif($connect == "false"){
+      exec('sudo /bin/systemctl stop tor.service');
+      exec('sudo /sbin/iptables -t nat -D PREROUTING -i wlan0 -p tcp --syn -j REDIRECT --to-ports 9040');
+      exec('sudo /sbin/iptables -t nat -D PREROUTING -i wlan0 -p tcp -d  ' . $ipwlan0 . '  --dport 80 -j REDIRECT --to-ports 80');
+      exec('sudo /sbin/iptables -t nat -D PREROUTING -i wlan0 -p udp --dport 53 -j REDIRECT --to-ports 53');
+      exec('sudo /sbin/iptables -t nat -D PREROUTING -i wlan0 -p tcp --dport 22 -j REDIRECT --to-ports 22');
+      echo json_encode("TOR Service stopped");
+    }
+  }
 
   if(isset($_POST['btnHotspot'])) {
     $ssid = $_POST['ssid'];
