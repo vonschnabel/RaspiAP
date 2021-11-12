@@ -74,9 +74,9 @@ case ${answer:0:1} in
         echo "installing TOR..."
         echo ""
 	sudo apt install tor -y
-	
-	timestamp=$(date +"%Y-%m-%d-%H-%M")
+		
 	if [ -w /etc/tor/torrc ]; then
+	    timestamp=$(date +"%Y-%m-%d-%H-%M")
 	    mv /etc/tor/torrc /etc/tor/torrc.bak-$timestamp
 	    sudo echo "Log notice file /var/log/tor/tor-notices.log" >> /etc/tor/torrc
 	    sudo echo "VirtualAddrNetwork 10.192.0.0/10" >> /etc/tor/torrc
@@ -103,10 +103,6 @@ case ${answer:0:1} in
 	echo ""
         ;;
 esac
-
-
-
-
 
 wget https://www.w3schools.com/w3css/4/w3.css
 wget http://code.jquery.com/jquery-1.11.3.min.js
