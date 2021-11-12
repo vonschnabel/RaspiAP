@@ -85,13 +85,6 @@ case ${answer:0:1} in
 	    sudo echo "TransPort 0.0.0.0:9040" >> /etc/tor/torrc
 	    sudo echo "DNSPort 0.0.0.0:53" >> /etc/tor/torrc
 	    
-	    sudo iptables -t nat -A PREROUTING -i wlan0 -p tcp --dport 22 -j REDIRECT --to-ports 22
-	    sudo iptables -t nat -A PREROUTING -i wlan0 -p udp --dport 53 -j REDIRECT --to-ports 53
-	    sudo iptables -t nat -A PREROUTING -i wlan0 -p tcp -d 192.168.4.1 --dport 80 -j REDIRECT --to-ports 80
-	    sudo iptables -t nat -A PREROUTING -i wlan0 -p tcp --syn -j REDIRECT --to-ports 9040
-	    
-	    sudo netfilter-persistent save
-	    
 	    touch /var/log/tor/notices.log
 	    chown debian-tor /var/log/tor/notices.log
 	    chmod 644 /var/log/tor/notices.log
