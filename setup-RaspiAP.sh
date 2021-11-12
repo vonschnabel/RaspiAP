@@ -35,8 +35,7 @@ read -p "Do you want to install wireguard (y/n): " answer </dev/tty
 echo ""
 
 case ${answer:0:1} in
-    y|Y|j )
-        # Write value to file.
+    y|Y|j|J )
         echo "installing wireguard..."
         echo ""
         read -p "enter a name for the wireguard device. default name is wg0: " wgdevicename </dev/tty
@@ -64,6 +63,57 @@ case ${answer:0:1} in
 	echo ""
         ;;
 esac
+
+echo ""
+echo ""
+read -p "Do you want to install TOR (Onion Routing) (y/n): " answer </dev/tty
+echo ""
+
+case ${answer:0:1} in
+    y|Y|j|J )        
+        echo "installing TOR..."
+        echo ""
+	sudo apt install tor -y
+	
+	timestamp=$(date +"%Y-%m-%d-%H-%M")
+	if [ -w /etc/tor/torrc ]; then
+	    mv /etc/tor/torrc /etc/tor/torrc.bak-$timestamp
+	    sudo echo "Log notice file /var/log/tor/tor-notices.log" >> /etc/tor/torrc
+	    sudo echo "VirtualAddrNetwork 10.192.0.0/10" >> /etc/tor/torrc
+	    sudo echo "AutomapHostsSuffixes .onion,.exit" >> /etc/tor/torrc
+	    sudo echo "AutomapHostsOnResolve 1" >> /etc/tor/torrc
+	    sudo echo "TransPort 0.0.0.0:9040" >> /etc/tor/torrc
+	    sudo echo "DNSPort 0.0.0.0:53" >> /etc/tor/torrc
+	    
+	    sudo iptables -t nat -A PREROUTING -i wlan0 -p tcp --dport 22 -j REDIRECT --to-ports 22
+	    sudo iptables -t nat -A PREROUTING -i wlan0 -p udp --dport 53 -j REDIRECT --to-ports 53
+	    sudo iptables -t nat -A PREROUTING -i wlan0 -p tcp -d 192.168.4.1 --dport 80 -j REDIRECT --to-ports 80
+	    sudo iptables -t nat -A PREROUTING -i wlan0 -p tcp --syn -j REDIRECT --to-ports 9040
+	    
+	    sudo netfilter-persistent save
+	    
+	    touch /var/log/tor/notices.log
+	    chown debian-tor /var/log/tor/notices.log
+	    chmod 644 /var/log/tor/notices.log
+	    sudo touch /var/log/tor/debug.log
+	    sudo chown debian-tor /var/log/tor/debug.log
+	    sudo chmod 644 /var/log/tor/debug.log
+	else
+  	    echo "Datei "/etc/tor/torrc" nicht vorhanden"
+  	    break
+	fi
+	sudo echo
+	echo ""
+        ;;
+    *)
+        echo 'install skipped'	
+	echo ""
+        ;;
+esac
+
+
+
+
 
 wget https://www.w3schools.com/w3css/4/w3.css
 wget http://code.jquery.com/jquery-1.11.3.min.js
