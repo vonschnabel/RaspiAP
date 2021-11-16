@@ -18,6 +18,21 @@ else
   git clone https://github.com/vonschnabel/RaspiAP.git
 fi
 
+echo
+WIFIDEVWLAN1=`grep "wlan12" /proc/net/dev`
+if  [ -n "$WIFIDEVWLAN1" ] ; then
+echo "The Wifi Device WLAN1 was found. Proceeding with the installation."
+echo
+else
+echo "The Wifi Device WLAN1 could not be found."
+echo "To use this program properly, WLAN1 must be available and and configured."
+echo "The installation will proceed now."
+echo
+read -n 1 -s -r -p "Press any key to continue"
+echo
+echo
+fi
+
 sudo apt install apache2 php php-mbstring libapache2-mod-php hostapd dnsmasq netfilter-persistent iptables-persistent -y
 
 sudo sed -i 's/Priv/#Priv/g' /lib/systemd/system/apache2.service
