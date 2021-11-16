@@ -106,6 +106,9 @@ case ${answer:0:1} in
 	    sudo touch /var/log/tor/debug.log
 	    sudo chown debian-tor /var/log/tor/debug.log
 	    sudo chmod 644 /var/log/tor/debug.log
+	    
+	    sudo systemctl stop tor
+	    sudo systemctl disable tor
 	else
   	    echo "Datei "/etc/tor/torrc" nicht vorhanden"
   	    break
