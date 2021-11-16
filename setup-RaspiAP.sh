@@ -19,7 +19,7 @@ else
 fi
 
 echo
-WIFIDEVWLAN1=`grep "wlan12" /proc/net/dev`
+WIFIDEVWLAN1=`grep "wlan1" /proc/net/dev`
 if  [ -n "$WIFIDEVWLAN1" ] ; then
 echo "The Wifi Device WLAN1 was found. Proceeding with the installation."
 echo
