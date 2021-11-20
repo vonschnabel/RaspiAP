@@ -78,10 +78,10 @@ sudo mv ./RaspiAP/hotspot.php /var/www/html/
 rm -rf RaspiAP
 ```
 ![Actual-Config](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/01-Actual-Config-1.PNG)
-![Actual-Config](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/01-Actual-Config-2.PNG)
+![Actual-Config](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/01-MAC-Address.PNG)
 ![Hotspot](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/02-Hotspot.PNG)
 ![Network-Settings](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/03-Network-Settings.PNG)
-![Connect-to-WIFI](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/04-Connect-to-WIFI-1.PNG)
-![Connect-to-WIFI](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/04-Connect-to-WIFI-2.PNG)
-![VPN-Config](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/05-VPN-Config.PNG)
+![Connect-to-WIFI](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/04-Connect-to-WIFI-Saved-Networks.PNG)
+![Connect-to-WIFI](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/04-Connect-to-WIFI-Scan.PNG)
+![VPN/Tor-Config](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/05-VPN-Config.PNG)
 ![Connected-Clients](https://github.com/vonschnabel/RaspiAP/blob/main/screenshots/06-Connected-Clients.PNG)
