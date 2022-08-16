@@ -1,4 +1,3 @@
-
 [Unit]
 Description=Create the Hostapd Service with the user provided config /boot/hotspot.conf. 
 ConditionPathExists=/boot/hotspot.conf
