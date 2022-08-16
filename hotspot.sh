@@ -45,6 +45,6 @@ echo "wpa_key_mgmt=WPA-PSK" >> "$filepath";
 echo "wpa_pairwise=TKIP" >> "$filepath";
 echo "rsn_pairwise=CCMP" >> "$filepath";
 
-#sudo /bin/systemctl stop hostapd.service
-#sudo /bin/systemctl enable hostapd.service
-#sudo /bin/systemctl start hostapd.service
+sudo /bin/systemctl stop hostapd.service
+sudo /bin/systemctl enable hostapd.service
+sudo /bin/systemctl start hostapd.service
