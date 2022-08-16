@@ -1,0 +1,17 @@
+
+[Unit]
+Description=Create the Hostapd Service with the user provided config /boot/hotspot.conf. 
+ConditionPathExists=/boot/hotspot.conf
+Before=raspberrypi-net-mods.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStartPre=/bin/systemctl stop hostapd.service
+ExecStart=sudo /usr/bin/bash /usr/local/bin/hotspot.sh
+ExecStartPost=/bin/systemctl enable hostapd.service
+ExecStartPost=/bin/systemctl start hostapd.service
+ExecStartPost=/bin/rm /boot/hotspot.conf
+
+[Install]
+WantedBy=multi-user.target
